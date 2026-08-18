@@ -1,0 +1,908 @@
+/* Portado desde tau-nova app/globals.css — estilos Prime DataTable FTTH (sin tema Lara). */
+
+/* PrimeReact Tooltip (unstyled): íconos de estado / portal en grillas FTTH */
+.ftth-status-icon-prime-tooltip.p-tooltip {
+  z-index: 1200;
+  max-width: min(24rem, 90vw);
+}
+
+.ftth-status-icon-prime-tooltip .p-tooltip-text {
+  background: rgb(0 0 0 / 0.85);
+  color: #fff;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
+}
+
+html.dm .ftth-status-icon-prime-tooltip .p-tooltip-text {
+  background: rgb(255 255 255 / 0.92);
+  color: #0f172a;
+}
+
+/* PrimeReact DataTable checkbox fix (unstyled mode) */
+.p-hidden-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.p-datatable .p-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.p-datatable .p-checkbox-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0 !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Comparativa histórica ONT vecinas: selección bloqueada mientras cargan gráficos pesados */
+.ftth-ont-neighbors-selection-locked .p-checkbox,
+.ftth-ont-neighbors-selection-locked .p-checkbox-input,
+.ftth-ont-neighbors-selection-cell-locked .p-checkbox,
+.ftth-ont-neighbors-selection-cell-locked .p-checkbox-input {
+  cursor: not-allowed !important;
+}
+
+.ftth-ont-neighbors-selection-locked .p-checkbox:not(.p-highlight) .p-checkbox-box,
+.ftth-ont-neighbors-selection-locked
+  .p-checkbox:not([data-p-highlight='true'])
+  .p-checkbox-box,
+.ftth-ont-neighbors-selection-cell-locked .p-checkbox:not(.p-highlight) .p-checkbox-box,
+.ftth-ont-neighbors-selection-cell-locked
+  .p-checkbox:not([data-p-highlight='true'])
+  .p-checkbox-box {
+  opacity: 0.55;
+}
+
+.p-datatable .p-checkbox .p-checkbox-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgb(0 0 0 / 0.25);
+  border-radius: 3px;
+  background: #fff;
+}
+
+.dm .p-datatable .p-checkbox .p-checkbox-box {
+  border-color: rgb(255 255 255 / 0.35);
+  background: transparent;
+}
+
+.dm .p-datatable .p-checkbox:not(.p-highlight) .p-checkbox-box,
+.dm .p-datatable .p-checkbox[data-p-highlight="false"] .p-checkbox-box {
+  border-color: rgb(255 255 255 / 0.35) !important;
+  background: transparent !important;
+}
+
+/* Mobile: columna de selección y columna fijada por candado. */
+.p-datatable th.ftth-mobile-sticky-select,
+.p-datatable td.ftth-mobile-sticky-select {
+  background: var(--table-content) !important;
+}
+
+.p-datatable th.ftth-mobile-sticky-select {
+  background: var(--table-header) !important;
+  z-index: 6 !important;
+}
+
+.p-datatable th.ftth-mobile-sticky-col {
+  background: var(--table-header) !important;
+  z-index: 5 !important;
+}
+
+.p-datatable td.ftth-mobile-sticky-col {
+  background: var(--table-content) !important;
+  z-index: 2 !important;
+}
+
+.p-datatable td.ftth-mobile-sticky-select {
+  background: var(--table-content) !important;
+  z-index: 3 !important;
+}
+
+.p-datatable th.ftth-mobile-frozen-divider {
+  box-shadow: 2px 0 0 var(--table-stroke);
+}
+
+.p-datatable td.ftth-mobile-frozen-divider {
+  box-shadow: 2px 0 0 var(--table-stroke);
+}
+
+.p-datatable .p-checkbox.p-highlight .p-checkbox-box {
+  border-color: var(--primary-2);
+  background: var(--primary-2);
+  color: #fff;
+}
+
+.p-datatable .p-checkbox[data-p-highlight="true"] .p-checkbox-box {
+  border-color: var(--primary-2);
+  background: var(--primary-2);
+  color: #fff;
+}
+
+.dm .p-datatable .p-checkbox.p-highlight .p-checkbox-box {
+  border-color: var(--secondary) !important;
+  background: var(--secondary) !important;
+}
+
+.dm .p-datatable .p-checkbox[data-p-highlight="true"] .p-checkbox-box {
+  border-color: var(--secondary) !important;
+  background: var(--secondary) !important;
+}
+
+.p-datatable .p-checkbox.p-highlight .p-checkbox-icon {
+  color: #fff;
+}
+
+.p-datatable .p-checkbox[data-p-highlight="true"] .p-checkbox-icon {
+  color: #fff;
+}
+
+.app-ftth-data-table .p-paginator .p-paginator-page[aria-current="page"],
+.app-ftth-data-table .p-paginator .p-paginator-page.p-highlight,
+.app-ftth-data-table .p-paginator .p-paginator-page[data-p-highlight="true"] {
+  border-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-radius: 9999px !important;
+}
+
+.dm .app-ftth-data-table .p-paginator .p-paginator-page[aria-current="page"],
+.dm .app-ftth-data-table .p-paginator .p-paginator-page.p-highlight,
+.dm .app-ftth-data-table .p-paginator .p-paginator-page[data-p-highlight="true"] {
+  border-color: var(--secondary) !important;
+  background: var(--secondary) !important;
+  color: #fff !important;
+}
+
+/**
+ * Prime DataTable — fila de filtros (`filterDisplay="row"`).
+ * El input está en `.p-column-filter-element`, no bajo `.p-column-filter .p-inputtext`
+ * (por eso los utilities Tailwind previos no aplicaban).
+ */
+/*
+ * Cabecera sticky opaca (títulos + fila de filtros).
+ * Un solo fondo en thead evita el hueco transparente entre las dos filas.
+ */
+.app-ftth-data-table .p-datatable-table,
+.app-ftth-data-table .p-datatable-scrollable-table {
+  /* `separate` evita que collapse + thead sticky oculten bordes verticales en cabecera. */
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.app-ftth-data-table .p-datatable-thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  isolation: isolate;
+  background-color: var(--table-header);
+  box-shadow: 0 1px 0 var(--table-stroke);
+}
+
+.app-ftth-data-table .p-datatable-thead::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--table-header);
+  pointer-events: none;
+}
+
+.app-ftth-data-table .p-datatable-thead > tr > th {
+  position: relative;
+  z-index: 1;
+  background-color: var(--table-header) !important;
+  background-clip: padding-box;
+  box-shadow: none !important;
+  border-top: none;
+  border-right: 1px solid var(--table-stroke) !important;
+  border-bottom: none;
+  vertical-align: middle;
+}
+
+/* Mantener sticky real en columnas frozen (mobile) para header + body. */
+.app-ftth-data-table .p-datatable-thead > tr > th.p-frozen-column {
+  position: sticky;
+  z-index: 12;
+}
+
+.app-ftth-data-table .p-datatable-tbody > tr > td.p-frozen-column {
+  position: sticky;
+  z-index: 9;
+}
+
+/* Evita transparencia visual en columnas fijadas con celdas de métricas coloreadas. */
+.app-ftth-data-table .p-datatable-tbody > tr > td.p-frozen-column.ftth-mobile-sticky-col,
+.app-ftth-data-table .p-datatable-tbody > tr > td.p-frozen-column.ftth-mobile-sticky-select {
+  background-color: var(--table-content) !important;
+  background-image: none !important;
+}
+
+/* Refuerzo visual: en sticky+collapse el border-right del th a veces no pinta. */
+.app-ftth-data-table .p-datatable-thead > tr > th:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--table-stroke);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.app-ftth-data-table .p-datatable-thead > tr > th:last-child {
+  border-right: none !important;
+}
+
+/* Separador títulos ↔ filtros (solo entre fila 1 y 2) */
+.app-ftth-data-table .p-datatable-thead > tr:first-child > th {
+  border-bottom: 1px solid var(--table-stroke) !important;
+}
+
+.app-ftth-data-table .p-datatable-thead > tr:nth-child(2) > th {
+  border-top: 1px solid var(--table-header) !important;
+}
+
+/* Borde inferior del bloque cabecera (última fila del thead) */
+.app-ftth-data-table .p-datatable-thead > tr:last-child > th {
+  border-bottom: 1px solid var(--table-stroke) !important;
+}
+
+.app-ftth-data-table .p-filter-column {
+  background-color: var(--table-header) !important;
+  padding: 0.35rem 0.5rem;
+  vertical-align: middle;
+}
+
+/*
+ * Pocas filas (< tamaño de página): la grilla no rellena el alto máximo del viewport.
+ * La marca `ftth-grid-table--compact` va en el shell (section/div toolbar+tabla).
+ */
+.ftth-grid-table-host:has(> .ftth-grid-table--compact) {
+  flex: 0 0 auto !important;
+}
+
+.ftth-grid-table--compact.app-ftth-data-table,
+.ftth-grid-table--compact .app-ftth-data-table {
+  height: auto !important;
+  flex: none !important;
+  min-height: 0 !important;
+}
+
+.ftth-grid-table--compact .app-ftth-data-table .p-datatable-wrapper {
+  flex: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+@media (min-width: 768px) {
+  /*
+   * Sin panel lateral: el split crece con las filas de la página (sin clip ni
+   * scroll vertical interno). Con mapa/comparación abiertos se mantiene alto fijo.
+   */
+  .ftth-grid-split:not(.ftth-grid-split-side-open):has(.ftth-grid-table--page-rows),
+  .ftth-grid-split:not(.ftth-grid-split-side-open):has(.ftth-grid-table--compact) {
+    height: auto !important;
+    flex: 0 0 auto !important;
+    max-height: none !important;
+  }
+
+  .ftth-grid-split-table-panel:has(.ftth-grid-table--page-rows),
+  .ftth-grid-split-table-panel:has(.ftth-grid-table--compact) {
+    height: auto !important;
+  }
+}
+
+.ftth-grid-table-host:has(> .ftth-grid-table--page-rows) {
+  flex: 0 0 auto !important;
+  height: auto !important;
+}
+
+.ftth-grid-table--page-rows .app-ftth-data-table .p-datatable-wrapper,
+.ftth-grid-table--page-rows.app-ftth-data-table .p-datatable-wrapper {
+  flex: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+/* Espacio para el FAB de reporte (no tapa "Filas" del paginador). */
+@media (min-width: 768px) {
+  .app-ftth-data-table .p-paginator {
+    padding-inline-end: 5.75rem;
+  }
+}
+
+.app-ftth-data-table .p-column-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+/* Filtro custom de columna estado: oculta el input de texto de Prime. */
+.app-ftth-data-table .ftth-estado-filter-slot .p-inputtext,
+.app-ftth-data-table .ftth-estado-filter-slot input[type='text'],
+.app-ftth-data-table .ftth-capa-portal-filter-slot .p-inputtext,
+.app-ftth-data-table .ftth-capa-portal-filter-slot input[type='text'] {
+  display: none !important;
+}
+
+/* Filtro a la izquierda del input (input, menú y clear los renderiza Prime). */
+.app-ftth-data-table .p-column-filter-menu-button {
+  order: 1;
+}
+
+.app-ftth-data-table .p-column-filter-element {
+  order: 2;
+}
+
+.app-ftth-data-table .p-column-filter-clear-button {
+  order: 3;
+}
+
+
+.app-ftth-data-table .p-column-filter-element {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*
+ * Métricas numéricas: el ancho lo define Prime según contenido; solo evitamos colapsar el input.
+ */
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 5.75rem;
+  max-width: none;
+}
+
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact .p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact input.p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact input[type="text"] {
+  min-width: 5.75rem;
+}
+
+/*
+ * Plain muy corto (altura, piso, slot, …): input + embudo + limpiar filtro (Prime: input, menú, clear).
+ * "Port Temp" / métricas con "port" en el nombre → no usan esta clase (match exacto de cabecera en TS).
+ */
+.app-ftth-data-table th.ftth-grid-col--compact-short .p-column-filter-row {
+  gap: 0.25rem;
+}
+
+.app-ftth-data-table th.ftth-grid-col--compact-short .p-column-filter-menu-button {
+  width: 1.55rem;
+  height: 1.55rem;
+  min-width: 1.55rem;
+  flex-shrink: 0;
+}
+
+.app-ftth-data-table th.ftth-grid-col--compact-short .p-column-filter-clear-button {
+  width: 1.55rem;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  flex-shrink: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-short {
+  flex: 1 1 auto;
+  /* Evita que el flex encoja tanto que el embudo quede encima del texto del input */
+  min-width: 5.75rem;
+  width: auto;
+  max-width: none;
+}
+
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-short .p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-short input.p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-short input[type="text"] {
+  min-width: 5.5rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+/* Fechas / causa / inactividad: ancho automático con mínimo usable. */
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-medium {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 5.75rem;
+  max-width: none;
+}
+
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-medium .p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-medium input.p-inputtext,
+.app-ftth-data-table .p-column-filter-element.ftth-grid-column-filter--compact-medium input[type="text"] {
+  min-width: 5.5rem;
+}
+
+/* Recalcular ONTs: sin anchos fijos; Prime reparte según contenido. */
+.app-ftth-data-table.ftth-recalculate-onts-table .p-datatable-thead > tr > th {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table .p-datatable-tbody > tr > td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table .p-column-header-content {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Mobile: scroll horizontal solo en la grilla; cabeceras centradas. */
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll {
+  display: inline-block;
+  width: max-content;
+  min-width: 100%;
+  vertical-align: top;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile .p-datatable-wrapper,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll .p-datatable-wrapper {
+  overflow: visible !important;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile .p-datatable-table,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll .p-datatable-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile .p-datatable-thead > tr > th,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll .p-datatable-thead > tr > th {
+  text-align: center !important;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile .p-column-header-content,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll .p-column-header-content {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.app-ftth-data-table.ftth-recalculate-onts-table.ftth-recalculate-onts-table--mobile .p-column-title,
+.app-ftth-data-table.ftth-grid-table--mobile-hscroll .p-column-title {
+  text-align: center;
+  flex: 0 1 auto;
+}
+
+/*
+ * Escritorio con scrollHeight fijo (px / min() / calc): Prime aplica maxHeight al
+ * wrapper. Asegurar overflow en ambos ejes + tabla por contenido (scroll horizontal).
+ */
+.app-ftth-data-table.p-datatable-scrollable:not(.p-datatable-flex-scrollable) > .p-datatable-wrapper {
+  overflow: auto !important;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/*
+ * Escritorio (scrollHeight flex): Prime pone height:100% en el wrapper; con el
+ * min-height:auto por defecto el flex item crece con las filas → no hay overflow-y
+ * (sí hay overflow-x por max-width). Forzamos que el wrapper se acote al padre.
+ */
+.app-ftth-data-table.p-datatable-flex-scrollable {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-ftth-data-table.p-datatable-flex-scrollable > .p-datatable-wrapper {
+  align-items: flex-start;
+  flex: 1 1 0%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: auto !important;
+  /* Sticky thead pega al borde superior del área de scroll. */
+  padding-top: 0;
+}
+
+.app-ftth-data-table:not(.ftth-grid-table--mobile-hscroll) .p-datatable-table,
+.app-ftth-data-table:not(.ftth-grid-table--mobile-hscroll) .p-datatable-scrollable-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.app-ftth-data-table .p-column-filter-element .p-inputtext,
+.app-ftth-data-table .p-column-filter-element input.p-inputtext,
+.app-ftth-data-table .p-column-filter-element input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: 0.375rem;
+  border: 1px solid var(--table-stroke);
+  background: var(--card);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  line-height: 1.2rem;
+  padding: 0.3rem 0.45rem;
+}
+
+.app-ftth-data-table .p-column-filter-element .p-inputtext::placeholder,
+.app-ftth-data-table .p-column-filter-element input::placeholder {
+  color: color-mix(in srgb, var(--text-secondary) 62%, transparent);
+}
+
+.app-ftth-data-table .p-column-filter-element .p-inputtext:focus,
+.app-ftth-data-table .p-column-filter-element input:focus {
+  outline: none;
+  border-color: var(--primary-2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-2) 22%, transparent);
+}
+
+.dm .app-ftth-data-table .p-column-filter-element .p-inputtext:focus,
+.dm .app-ftth-data-table .p-column-filter-element input:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--secondary) 24%, transparent);
+}
+
+.app-ftth-data-table .p-column-filter-menu-button {
+  flex-shrink: 0;
+  position: relative;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--table-stroke);
+  background: var(--card);
+  color: var(--secondary);
+}
+
+.app-ftth-data-table .p-column-filter-menu-button:hover {
+  background: color-mix(in srgb, var(--primary-2) 8%, var(--card));
+}
+
+.dm .app-ftth-data-table .p-column-filter-menu-button:hover {
+  background: color-mix(in srgb, var(--secondary) 12%, var(--card));
+}
+
+.app-ftth-data-table .p-column-filter-menu-button.p-column-filter-menu-button-active,
+.app-ftth-data-table .p-column-filter-menu-button.p-column-filter-menu-button-open {
+  border-color: var(--primary-2);
+  color: var(--primary-2);
+  background: color-mix(in srgb, var(--primary-2) 10%, var(--card));
+}
+
+.dm .app-ftth-data-table .p-column-filter-menu-button.p-column-filter-menu-button-active,
+.dm .app-ftth-data-table .p-column-filter-menu-button.p-column-filter-menu-button-open {
+  border-color: var(--secondary);
+  color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary) 14%, var(--card));
+}
+
+/* Marca visual cuando una columna tiene filtro activo. */
+.app-ftth-data-table th.ftth-grid-filter-active {
+  background: color-mix(in srgb, var(--primary-2) 10%, var(--table-header));
+}
+
+.dm .app-ftth-data-table th.ftth-grid-filter-active {
+  background: color-mix(in srgb, var(--secondary) 14%, var(--table-header));
+}
+
+/* Indicador global en toolbar/tabla cuando hay filtros activos. */
+.app-ftth-data-table.ftth-grid-has-active-filter .p-column-filter-menu-button::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--primary-2);
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.app-ftth-data-table.ftth-grid-has-active-filter
+  .p-column-filter-menu-button.p-column-filter-menu-button-active::after,
+.app-ftth-data-table.ftth-grid-has-active-filter
+  th.ftth-grid-filter-active
+  .p-column-filter-menu-button::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dm .app-ftth-data-table.ftth-grid-has-active-filter .p-column-filter-menu-button::after {
+  background: var(--secondary);
+}
+
+/**
+ * Panel del menú de filtro (modos: Contiene, Igual a, etc.).
+ * Prime 10 no siempre añade `p-column-filter-overlay-menu`; la lista suele ser `ul.p-column-filter-row-items`.
+ */
+.p-column-filter-overlay.p-component {
+  border-radius: 0.5rem !important;
+  border: 1px solid var(--table-stroke) !important;
+  background: var(--card) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 12px 40px rgb(15 23 42 / 0.16) !important;
+  padding: 0.35rem 0 !important;
+  min-width: 11.5rem;
+  z-index: 13000 !important;
+}
+
+.dm .p-column-filter-overlay.p-component {
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.55) !important;
+}
+
+.p-column-filter-row-items {
+  margin: 0 !important;
+  padding: 0.2rem 0 !important;
+  list-style: none !important;
+  background: var(--card) !important;
+  border: 1px solid var(--table-stroke);
+  border-radius: 0.5rem;
+  box-shadow: 0 12px 40px rgb(15 23 42 / 0.14);
+  min-width: 11.5rem;
+}
+
+.p-column-filter-separator {
+  display: none !important;
+}
+
+.p-column-filter-overlay .p-column-filter-row-items .p-column-filter-separator,
+.p-column-filter-overlay .p-column-filter-row-items li[data-p-column-filter-separator='true'] {
+  display: none !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}
+
+.dm .p-column-filter-row-items {
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+}
+
+.p-column-filter-row-item {
+  padding: 0.5rem 0.9rem !important;
+  cursor: pointer !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: var(--text-primary) !important;
+  border-radius: 0.25rem;
+}
+
+.p-column-filter-row-item:hover,
+.p-column-filter-row-item.p-focus,
+.p-column-filter-row-item[data-p-focused='true'] {
+  background: var(--table-header) !important;
+}
+
+.dm .p-column-filter-row-item:hover,
+.dm .p-column-filter-row-item.p-focus,
+.dm .p-column-filter-row-item[data-p-focused='true'] {
+  background: rgb(255 255 255 / 0.07) !important;
+}
+
+/* Opción de modo activa dentro del menú de filtros. */
+.p-column-filter-row-item.p-highlight,
+.p-column-filter-row-item[data-p-highlight='true'],
+.p-column-filter-row-item[aria-selected='true'] {
+  position: relative;
+  background: color-mix(in srgb, var(--primary-2) 14%, var(--table-header)) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  padding-right: 1.8rem !important;
+}
+
+.p-column-filter-row-item.p-highlight::after,
+.p-column-filter-row-item[data-p-highlight='true']::after,
+.p-column-filter-row-item[aria-selected='true']::after {
+  content: '✓';
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-2);
+  font-weight: 700;
+}
+
+.dm .p-column-filter-row-item.p-highlight,
+.dm .p-column-filter-row-item[data-p-highlight='true'],
+.dm .p-column-filter-row-item[aria-selected='true'] {
+  background: color-mix(in srgb, var(--secondary) 18%, var(--table-header)) !important;
+}
+
+.dm .p-column-filter-row-item.p-highlight::after,
+.dm .p-column-filter-row-item[data-p-highlight='true']::after,
+.dm .p-column-filter-row-item[aria-selected='true']::after {
+  color: var(--secondary);
+}
+
+/* Refuerzo para el item activo vía PT de Prime (más robusto que p-highlight). */
+.p-column-filter-row-item.ftth-filter-row-item-active {
+  position: relative;
+  background: color-mix(in srgb, var(--primary-2) 14%, var(--table-header)) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  padding-right: 1.8rem !important;
+}
+
+.p-column-filter-row-item.ftth-filter-row-item-active::after {
+  content: '✓';
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-2);
+  font-weight: 700;
+}
+
+.dm .p-column-filter-row-item.ftth-filter-row-item-active {
+  background: color-mix(in srgb, var(--secondary) 18%, var(--table-header)) !important;
+}
+
+.dm .p-column-filter-row-item.ftth-filter-row-item-active::after {
+  color: var(--secondary);
+}
+
+.p-column-filter-overlay.p-component .p-button,
+.p-column-filter-overlay.p-component .p-button.p-component {
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--table-stroke);
+  background: var(--table-header);
+  color: var(--text-primary);
+}
+
+.p-column-filter-overlay.p-component .p-button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--primary-2) 10%, var(--table-header));
+}
+
+.dm .p-column-filter-overlay.p-component .p-button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--secondary) 14%, var(--table-header));
+}
+
+/* Popup custom del filtro de estado: mismo look de filtros de columna, sin punta de tooltip. */
+.ftth-estado-filter-overlay.p-overlaypanel::before,
+.ftth-estado-filter-overlay.p-overlaypanel::after,
+.ftth-capa-portal-filter-overlay.p-overlaypanel::before,
+.ftth-capa-portal-filter-overlay.p-overlaypanel::after {
+  display: none !important;
+}
+
+.ftth-estado-filter-overlay .ftth-estado-filter-overlay-content,
+.ftth-capa-portal-filter-overlay .ftth-capa-portal-filter-overlay-content {
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .ftth-shell-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(71 85 105 / 0.55) rgb(148 163 184 / 0.16);
+  }
+
+  .ftth-shell-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .ftth-shell-scroll::-webkit-scrollbar-track {
+    background: rgb(148 163 184 / 0.16);
+    border-radius: 9999px;
+  }
+
+  .ftth-shell-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(100 116 139 / 0.9), rgb(71 85 105 / 0.9));
+    border: 2px solid rgb(148 163 184 / 0.16);
+    border-radius: 9999px;
+  }
+
+  .ftth-shell-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(100 116 139), rgb(51 65 85));
+  }
+
+  .dm .ftth-shell-scroll {
+    scrollbar-color: rgb(160 122 248 / 0.65) rgb(255 255 255 / 0.07);
+  }
+
+  .dm .ftth-shell-scroll::-webkit-scrollbar-track {
+    background: rgb(255 255 255 / 0.07);
+  }
+
+  .dm .ftth-shell-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(160 122 248 / 0.88), rgb(109 75 198 / 0.88));
+    border-color: rgb(255 255 255 / 0.07);
+  }
+
+  .dm .ftth-shell-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(179 146 255), rgb(124 88 219));
+  }
+
+  .app-ftth-data-table .p-datatable-wrapper,
+  .app-ftth-data-table .p-datatable-table-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(31 41 55 / 0.55) rgb(148 163 184 / 0.18);
+  }
+
+  .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar,
+  .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-track,
+  .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-track {
+    background: rgb(148 163 184 / 0.18);
+    border-radius: 9999px;
+  }
+
+  .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-thumb,
+  .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(71 85 105 / 0.88), rgb(51 65 85 / 0.88));
+    border: 2px solid rgb(148 163 184 / 0.18);
+    border-radius: 9999px;
+  }
+
+  .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+  .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(71 85 105), rgb(30 41 59));
+  }
+
+  .dm .app-ftth-data-table .p-datatable-wrapper,
+  .dm .app-ftth-data-table .p-datatable-table-container {
+    scrollbar-color: rgb(113 113 122 / 0.72) rgb(255 255 255 / 0.08);
+  }
+
+  .dm .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-track,
+  .dm .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-track {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .dm .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-thumb,
+  .dm .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(113 113 122 / 0.9), rgb(82 82 91 / 0.9));
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  .dm .app-ftth-data-table .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+  .dm .app-ftth-data-table .p-datatable-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgb(161 161 170), rgb(113 113 122));
+  }
+}
+

@@ -1,0 +1,40 @@
+
+/* Mapa FTTH (portado de tau-nova globals.css) */
+html.dm .ftth-map-neighbors-panel {
+  border-color: rgb(255 255 255 / 0.14);
+}
+
+.ftth-map-popup-scroll {
+  scrollbar-width: thin;
+}
+
+.ftth-map-frame .maplibregl-map {
+  border-radius: 0.75rem;
+}
+
+.ftth-map-frame .maplibregl-ctrl-top-right {
+  top: 3.25rem;
+}
+
+.ftth-map-frame:fullscreen,
+.ftth-map-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+.ftth-map-frame:fullscreen .ftth-map-canvas-wrap,
+.ftth-map-frame:-webkit-full-screen .ftth-map-canvas-wrap {
+  border-radius: 0;
+}
+
+.ftth-map-frame:fullscreen .maplibregl-map,
+.ftth-map-frame:-webkit-full-screen .maplibregl-map {
+  border-radius: 0;
+}
+
+.ftth-map-popup-open .maplibregl-ctrl-bottom-right,
+.ftth-map-popup-open .maplibregl-ctrl-bottom-left {
+  display: none !important;
+}

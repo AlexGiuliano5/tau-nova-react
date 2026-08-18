@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+@import './features/ont/styles/ftth-map.css';
+
+@custom-variant dark (&:where(.dm, .dm *));
+
+@theme {
+  --white: #ffffff;
+  --gris-fondo-teco: #f7f7f7;
+  --outline-teco: #e3dee8;
+  --background-teco: #f7f4ff;
+  --gray-01: #c4c4c4;
+  --gray-02: #555555;
+  --gray-03: #262626;
+  --gray-04: #000000;
+  --state-01: #6ca652;
+  --state-02: #edb846;
+  --state-03: #fe414d;
+  --tag-state-01: #b5efda;
+  --tag-state-02: #ffebb7;
+  --tag-state-03: #ffc3c3;
+  --card-gray: #eaeaea;
+  --card-green: #4cd964;
+  --card-red: #ff3b30;
+  --card-yellow: #ffd700;
+  --card-orange: #ff9500;
+}
+
+:root {
+  --ftth-mobile-bottom-nav-height: 70px;
+  --ftth-mobile-bottom-nav-clearance: max(
+    5.5rem,
+    calc(var(--ftth-mobile-bottom-nav-height) + 1.5rem + env(safe-area-inset-bottom, 0px))
+  );
+  --primary: #189ae0;
+  --primary-2: #0076c7;
+  --primary-3: #052c50;
+  --secondary: #3d00a9;
+  --secondary-2: #052c50;
+  --secondary-3: #281e5a;
+  --secondary-4: #140232;
+  --background: #f7f7f7;
+  --card: #ffffff;
+  --outline: #e3dee8;
+  --divisor: #929292;
+  --text-primary: #000000;
+  --text-secondary: #3a3a3a;
+  --table-header: #f8fafc;
+  --table-stroke: #e2e8f0;
+  --table-content: #ffffff;
+}
+
+html.dm {
+  --primary: #0076c7;
+  --primary-2: #0076c7;
+  --primary-3: #052c50;
+  --secondary: #a07af8;
+  --secondary-2: #3d00a9;
+  --secondary-3: #281e5a;
+  --secondary-4: #140232;
+  --background: #121212;
+  --card: #1f1f1f;
+  --outline: #e3dee8;
+  --divisor: #929292;
+  --text-primary: #f5f5f5;
+  --text-secondary: #d0d0d0;
+  --table-header: #2b2b2b;
+  --card-gray: #2b2b2b;
+  --table-stroke: rgb(242 242 242 / 0.25);
+  --table-content: #1f1f1f;
+}
+
+/* Swap de tema: sin transiciones CSS sueltas (cards vs fondo). */
+html.tau-theme-crossfade-active,
+html.tau-theme-crossfade-active * {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* View Transition API: fundido de página entero (~200 ms). */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family:
+    'Montserrat',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html:has(main.h-dvh.overflow-hidden) {
+  overflow: hidden;
+  height: 100%;
+}
+
+html:has(main.h-dvh.overflow-hidden) body {
+  overflow: hidden;
+  height: 100%;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+:root {
+  --violeta-iconos-teco: color-mix(in srgb, var(--secondary) 18%, transparent);
+}
+
+@keyframes ont-metric-card-live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-2) 45%, transparent); }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.ont-metric-card-live-pulse {
+  animation: ont-metric-card-live-pulse 0.9s ease-out 1;
+}
+
+.ont-detail-tab-active {
+  border-bottom-color: rgb(255 255 255 / 0.9);
+}
+
+html.dm .ont-detail-tab-active {
+  border-bottom-color: rgb(196 180 255 / 0.95);
+}
+
+/* Brush de gráficos históricos de comparativa (alineado a tau-nova) */
+.historic-line-chart {
+  --chart-brush-track: #eef2f7;
+  --chart-brush-rim: #e2e8f0;
+  --chart-brush-window: rgb(24 154 224 / 0.22);
+  --chart-brush-handle-fill: #ffffff;
+  --chart-brush-handle-stroke: rgb(148 163 184 / 0.85);
+}
+
+html.dm .historic-line-chart {
+  --chart-brush-track: rgb(255 255 255 / 0.055);
+  --chart-brush-rim: rgb(255 255 255 / 0.1);
+  --chart-brush-window: rgb(160 122 248 / 0.18);
+  --chart-brush-handle-fill: rgb(255 255 255 / 0.16);
+  --chart-brush-handle-stroke: rgb(255 255 255 / 0.22);
+}
+
+.historic-line-chart .recharts-brush-texts {
+  display: none;
+}
+
+.historic-line-chart .recharts-brush {
+  filter: drop-shadow(0 2px 10px rgb(15 23 42 / 0.07));
+}
+
+html.dm .historic-line-chart .recharts-brush {
+  filter: drop-shadow(0 1px 4px rgb(0 0 0 / 0.35));
+}
+
+.historic-line-chart .recharts-brush > rect:first-of-type {
+  rx: 10px;
+  ry: 10px;
+}
+
+.historic-line-chart .recharts-brush-slide {
+  fill: var(--chart-brush-window) !important;
+  fill-opacity: 1 !important;
+  stroke: none !important;
+  rx: 8px;
+  ry: 8px;
+}

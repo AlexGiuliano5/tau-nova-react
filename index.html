@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/imgs/tau-favicon-light-round.ico" />
+    <link rel="apple-touch-icon" href="/imgs/tau-favicon-light-round.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAU Nova</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var sk = 'tau-theme-mode';
+          var m = localStorage.getItem(sk);
+          if (!(m === 'light' || m === 'dark' || m === 'auto')) m = 'light';
+          var dark =
+            m === 'dark' ||
+            (m === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dm', dark);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
