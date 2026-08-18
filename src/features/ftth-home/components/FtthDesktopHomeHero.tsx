@@ -1,5 +1,15 @@
-import { type FormEvent, type MouseEvent, useEffect, useId, useMemo, useState } from 'react'
-import { IoGitNetworkOutline, IoSearch } from 'react-icons/io5'
+import {
+  type FormEvent,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import { IoChevronBack, IoChevronForward, IoGitNetworkOutline, IoSearch } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 
 import { filterOltsByPrefix } from '@/features/ftth/lib/olt-names'
@@ -14,6 +24,9 @@ const recentSearchChipClassName =
 
 const homeSearchSubmitButtonClassName =
   'inline-flex h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0d9488_0%,#0ea5e9_50%,#6366f1_100%)] px-7 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(14,165,233,0.25)] transition-all hover:-translate-y-px hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-[170px] dark:bg-[linear-gradient(135deg,#7c3aed_0%,#6d28d9_42%,#5b21b6_88%,#4c1d95_100%)] dark:text-white dark:shadow-[0_16px_40px_rgba(124,58,237,0.38)]'
+
+const recentSearchNavButtonClassName =
+  'inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-sky-300/40 bg-(--card) text-sky-800 transition-colors hover:border-sky-400/60 hover:bg-sky-50 disabled:pointer-events-none disabled:opacity-30 dark:border-violet-400/30 dark:bg-[rgb(26_22_44)] dark:text-violet-100 dark:hover:border-violet-300/50 dark:hover:bg-[rgb(38_32_58)]'
 
 function preventCarouselFocusScroll(event: MouseEvent<HTMLButtonElement>) {
   event.preventDefault()
@@ -195,52 +208,12 @@ export function FtthDesktopHomeHero({
                 </div>
 
                 {recentSearches.length > 0 ? (
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                    <p className="shrink-0 text-[11px] font-semibold tracking-[0.18em] text-(--text-secondary) uppercase">
-                      Recientes
-                    </p>
-                    <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-0.5">
-                      {recentSearches.map((search) => {
-                        const recentHref = resolveNetworkElementSearchHref(
-                          search.value,
-                          oltNameList,
-                        )
-                        return (
-                          <button
-                            key={`${search.value}-${search.updatedAt}`}
-                            type="button"
-                            onMouseDown={preventCarouselFocusScroll}
-                            onClick={() => {
-                              if (recentHref) {
-                                void navigate(recentHref)
-                                return
-                              }
-                              navigateByValue(search.value)
-                            }}
-                            className={recentSearchChipClassName}
-                          >
-                            <span className="inline-flex items-center gap-1.5">
-                              <span className="text-xs font-semibold text-sky-900 dark:text-violet-100">
-                                {search.value}
-                              </span>
-                              <span
-                                className="text-[11px] font-semibold text-sky-800/55 dark:text-violet-100/45"
-                                aria-hidden
-                              >
-                                ·
-                              </span>
-                              <span className="text-[11px] font-semibold text-sky-800/70 dark:text-violet-100/65">
-                                {formatRecentSearchDate(
-                                  search.updatedAt,
-                                  recentSearchReferenceNowMs,
-                                )}
-                              </span>
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
+                  <RecentSearchesCarousel
+                    recentSearches={recentSearches}
+                    oltNameList={oltNameList}
+                    referenceNowMs={recentSearchReferenceNowMs}
+                    onSelect={navigateByValue}
+                  />
                 ) : null}
 
                 {error ? (
@@ -258,6 +231,132 @@ export function FtthDesktopHomeHero({
         </div>
       </div>
     </section>
+  )
+}
+
+function readCarouselScrollState(scroller: HTMLDivElement) {
+  const maxScrollLeft = Math.max(0, scroller.scrollWidth - scroller.clientWidth)
+  return {
+    canScrollLeft: scroller.scrollLeft > 4,
+    canScrollRight: scroller.scrollLeft < maxScrollLeft - 4,
+  }
+}
+
+function RecentSearchesCarousel({
+  recentSearches,
+  oltNameList,
+  referenceNowMs,
+  onSelect,
+}: {
+  recentSearches: RecentNetworkElementSearch[]
+  oltNameList: string[]
+  referenceNowMs: number | null
+  onSelect: (value: string) => void
+}) {
+  const navigate = useNavigate()
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollState = useCallback(() => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const next = readCarouselScrollState(scroller)
+    setCanScrollLeft(next.canScrollLeft)
+    setCanScrollRight(next.canScrollRight)
+  }, [])
+
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+
+    updateScrollState()
+    scroller.addEventListener('scroll', updateScrollState, { passive: true })
+
+    const observer = new ResizeObserver(() => updateScrollState())
+    observer.observe(scroller)
+    const firstChild = scroller.firstElementChild
+    if (firstChild) observer.observe(firstChild)
+
+    return () => {
+      scroller.removeEventListener('scroll', updateScrollState)
+      observer.disconnect()
+    }
+  }, [recentSearches, updateScrollState])
+
+  const scrollByDirection = (direction: -1 | 1) => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const amount = Math.max(Math.round(scroller.clientWidth * 0.72), 180)
+    scroller.scrollBy({ left: direction * amount, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <p className="shrink-0 text-[11px] font-semibold tracking-[0.18em] text-(--text-secondary) uppercase">
+        Recientes
+      </p>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <button
+          type="button"
+          className={recentSearchNavButtonClassName}
+          aria-label="Ver búsquedas anteriores"
+          disabled={!canScrollLeft}
+          onMouseDown={preventCarouselFocusScroll}
+          onClick={() => scrollByDirection(-1)}
+        >
+          <IoChevronBack size={16} aria-hidden />
+        </button>
+        <div
+          ref={scrollerRef}
+          className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {recentSearches.map((search) => {
+            const recentHref = resolveNetworkElementSearchHref(search.value, oltNameList)
+            return (
+              <button
+                key={`${search.value}-${search.updatedAt}`}
+                type="button"
+                onMouseDown={preventCarouselFocusScroll}
+                onClick={() => {
+                  if (recentHref) {
+                    void navigate(recentHref)
+                    return
+                  }
+                  onSelect(search.value)
+                }}
+                className={recentSearchChipClassName}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-sky-900 dark:text-violet-100">
+                    {search.value}
+                  </span>
+                  <span
+                    className="text-[11px] font-semibold text-sky-800/55 dark:text-violet-100/45"
+                    aria-hidden
+                  >
+                    ·
+                  </span>
+                  <span className="text-[11px] font-semibold text-sky-800/70 dark:text-violet-100/65">
+                    {formatRecentSearchDate(search.updatedAt, referenceNowMs)}
+                  </span>
+                </span>
+              </button>
+            )
+          })}
+        </div>
+        <button
+          type="button"
+          className={recentSearchNavButtonClassName}
+          aria-label="Ver búsquedas siguientes"
+          disabled={!canScrollRight}
+          onMouseDown={preventCarouselFocusScroll}
+          onClick={() => scrollByDirection(1)}
+        >
+          <IoChevronForward size={16} aria-hidden />
+        </button>
+      </div>
+    </div>
   )
 }
 
