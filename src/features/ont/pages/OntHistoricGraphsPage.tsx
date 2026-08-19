@@ -16,10 +16,10 @@ import {
 import {
   DEFAULT_HISTORIC_CHART_DAYS,
   DEFAULT_HISTORIC_STATUS_TIME_FILTER,
-  formatHistoricStatusTick,
   HISTORIC_CHART_DAY_OPTIONS,
   HISTORIC_STATUS_TIME_FILTER_OPTIONS,
   isMetricGraph,
+  isPowerGraph,
   isStatusOrTrafficGraph,
   type ComparisonGraphId,
   type ComparisonOntSeries,
@@ -31,15 +31,19 @@ import { FtthDataIssueNotice } from '@/features/ftth/components/FtthDataIssueNot
 import { resolveFtthDisplayIssueToneClass } from '@/features/ftth/lib/card-issue'
 import { useOntContextQuery } from '@/features/ont/hooks/use-ont-context-query'
 import { useOntHistoricSeriesQuery } from '@/features/ont/hooks/use-ont-historic-series-query'
+import { buildHistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
+import { ontMetricThresholdTitleForGraph } from '@/features/ont/lib/ont-metric-thresholds'
+import { OntHistoricPowerChart, resolveHistoricPowerLatest, statusTextClass } from '@/features/ont/ui/OntHistoricPowerChart'
+import { OntHistoricStatusBarChart } from '@/features/ont/ui/OntHistoricStatusBarChart'
 
 const SERIES_COLOR = 'var(--primary)'
 
 const GRAPH_OPTIONS: Array<{ id: ComparisonGraphId; label: string; title: string }> = [
-  { id: 'estado', label: 'Estado', title: 'Estado' },
-  { id: 'ont-rx', label: 'ONT Rx', title: 'ONT Rx Power' },
-  { id: 'ont-tx', label: 'ONT Tx', title: 'ONT Tx Power' },
-  { id: 'olt-rx', label: 'OLT Rx', title: 'OLT Rx Power' },
-  { id: 'olt-tx', label: 'OLT Tx', title: 'OLT Tx Power' },
+  { id: 'estado', label: 'Estado', title: 'Estado — ONT' },
+  { id: 'ont-rx', label: 'ONT Rx', title: 'Potencia recibida — ONT' },
+  { id: 'ont-tx', label: 'ONT Tx', title: 'Potencia transmitida — ONT' },
+  { id: 'olt-rx', label: 'OLT Rx', title: 'Potencia recibida — OLT' },
+  { id: 'olt-tx', label: 'OLT Tx', title: 'Potencia transmitida — OLT' },
   { id: 'trafico-us', label: 'Tráfico US', title: 'Tráfico US' },
   { id: 'trafico-ds', label: 'Tráfico DS', title: 'Tráfico DS' },
   { id: 'ont-voltage', label: 'ONT Voltage', title: 'ONT Voltage' },
@@ -180,13 +184,20 @@ function PeriodChips<T extends string>({
   value,
   options,
   onChange,
+  align = 'center',
 }: {
   value: T
   options: ReadonlyArray<{ value: T; label: string }>
   onChange: (value: T) => void
+  align?: 'center' | 'end'
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 py-0.5">
+    <div
+      className={clsx(
+        'flex flex-wrap items-center gap-2 py-0.5',
+        align === 'end' ? 'justify-end' : 'justify-center',
+      )}
+    >
       {options.map((option) => {
         const isOn = option.value === value
         return (
@@ -274,6 +285,10 @@ function HistoricGraphCard({
     DEFAULT_HISTORIC_STATUS_TIME_FILTER,
   )
   const isStatus = graphId === 'estado'
+  const isPower = isPowerGraph(graphId)
+  const powerMetricTitle = isPower
+    ? ontMetricThresholdTitleForGraph(graphId)
+    : ''
 
   const query = useOntHistoricSeriesQuery({
     ontSerial,
@@ -300,62 +315,135 @@ function HistoricGraphCard({
     () => (series ? seriesToRows(series) : []),
     [series],
   )
+  const statusBarModel = useMemo(
+    () => (isStatus && series ? buildHistoricStatusBarModel(series.points) : null),
+    [isStatus, series],
+  )
   const unit = series?.unit
   const showBrush = chartRows.length > 2
+  const powerLatest =
+    isPower && hasPriorData
+      ? resolveHistoricPowerLatest(chartRows, powerMetricTitle, unit ?? 'dBm')
+      : null
 
   const graphIssue = showError ? 'error' : showEmpty ? 'no-data' : null
+  const periodChips = useStatusPeriod ? (
+    <PeriodChips
+      value={timeFilter}
+      options={HISTORIC_STATUS_TIME_FILTER_OPTIONS}
+      onChange={setTimeFilter}
+      align={isStatus ? 'end' : 'center'}
+    />
+  ) : isMetricGraph(graphId) ? (
+    <PeriodChips
+      value={days}
+      options={HISTORIC_CHART_DAY_OPTIONS}
+      onChange={setDays}
+    />
+  ) : null
 
   return (
     <section
       className={clsx(
-        'rounded-xl border bg-(--card) p-3 shadow-sm',
+        'rounded-xl border bg-(--card) p-3 shadow-sm md:p-4',
         graphIssue
           ? resolveFtthDisplayIssueToneClass(graphIssue)
           : 'border-(--table-stroke) dark:border-white/12',
       )}
     >
-      <header className="relative mb-2 flex items-center justify-center border-b border-(--table-stroke)/70 pb-2 dark:border-white/10">
-        <h2 className="m-0 text-center text-sm font-semibold text-(--text-primary)">{title}</h2>
-        {unit && hasPriorData ? (
-          <span className="absolute left-0 text-[11px] text-(--text-secondary)">{unit}</span>
-        ) : null}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={`Cerrar gráfico ${title}`}
-          className="absolute right-0 inline-flex h-7 w-7 items-center justify-center rounded-md text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) dark:hover:bg-white/8"
-        >
-          <IoClose size={16} />
-        </button>
-      </header>
-
-      <div className="mb-3">
-        {useStatusPeriod ? (
-          <PeriodChips
-            value={timeFilter}
-            options={HISTORIC_STATUS_TIME_FILTER_OPTIONS}
-            onChange={setTimeFilter}
-          />
-        ) : isMetricGraph(graphId) ? (
-          <PeriodChips
-            value={days}
-            options={HISTORIC_CHART_DAY_OPTIONS}
-            onChange={setDays}
-          />
-        ) : null}
-      </div>
+      {isStatus || isPower ? (
+        <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:justify-start sm:gap-4">
+            <h2 className="m-0 text-base font-semibold tracking-tight text-(--text-primary) md:text-[1.05rem]">
+              {title}
+            </h2>
+            {isPower && powerLatest ? (
+              <div className="flex min-w-0 items-baseline gap-2">
+                <span className="text-xl font-semibold tracking-tight text-(--text-primary) md:text-2xl">
+                  {powerLatest.formatted}
+                </span>
+                {powerLatest.statusLabel && powerLatest.statusTone ? (
+                  <span className={clsx('text-sm font-semibold', statusTextClass(powerLatest.statusTone))}>
+                    {powerLatest.statusLabel}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={`Cerrar gráfico ${title}`}
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) sm:hidden dark:hover:bg-white/8"
+            >
+              <IoClose size={16} />
+            </button>
+          </div>
+          <div className="flex min-w-0 items-center justify-end gap-2">
+            {periodChips}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={`Cerrar gráfico ${title}`}
+              className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) sm:inline-flex dark:hover:bg-white/8"
+            >
+              <IoClose size={16} />
+            </button>
+          </div>
+        </header>
+      ) : (
+        <>
+          <header className="relative mb-2 flex items-center justify-center border-b border-(--table-stroke)/70 pb-2 dark:border-white/10">
+            <h2 className="m-0 text-center text-sm font-semibold text-(--text-primary)">{title}</h2>
+            {unit && hasPriorData ? (
+              <span className="absolute left-0 text-[11px] text-(--text-secondary)">{unit}</span>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={`Cerrar gráfico ${title}`}
+              className="absolute right-0 inline-flex h-7 w-7 items-center justify-center rounded-md text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) dark:hover:bg-white/8"
+            >
+              <IoClose size={16} />
+            </button>
+          </header>
+          <div className="mb-3">{periodChips}</div>
+        </>
+      )}
 
       {!isActive ? (
-        <div className="h-[240px]" aria-hidden />
+        <div className={isStatus ? 'h-[120px]' : 'h-[280px]'} aria-hidden />
       ) : showInitialSpinner ? (
-        <ChartSpinner className="h-[240px]" />
+        <ChartSpinner className={isStatus ? 'h-[120px]' : 'h-[280px]'} />
       ) : graphIssue ? (
-        <div className="flex h-[220px] items-center justify-center px-2">
+        <div className={clsx('flex items-center justify-center px-2', isStatus ? 'h-[120px]' : 'h-[220px]')}>
           <FtthDataIssueNotice
             presentation="inline"
             issue={graphIssue}
             context={`el gráfico "${title}"`}
           />
+        </div>
+      ) : isStatus ? (
+        <div className="relative px-1 pb-1">
+          {statusBarModel ? <OntHistoricStatusBarChart model={statusBarModel} /> : null}
+          {showRefreshOverlay ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-(--card)/55 backdrop-blur-[1px] dark:bg-black/25">
+              <ChartSpinner />
+            </div>
+          ) : null}
+        </div>
+      ) : isPower ? (
+        <div className="relative w-full" key={chartHostKey}>
+          <OntHistoricPowerChart
+            title={title}
+            metricTitle={powerMetricTitle}
+            unit={unit ?? 'dBm'}
+            rows={chartRows}
+          />
+          {showRefreshOverlay ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-(--card)/55 backdrop-blur-[1px] dark:bg-black/25">
+              <ChartSpinner />
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="historic-line-chart relative w-full" key={chartHostKey}>
@@ -370,10 +458,8 @@ function HistoricGraphCard({
                 />
                 <YAxis
                   tick={{ fontSize: 10, fill: 'var(--text-secondary)' }}
-                  width={isStatus ? 78 : 42}
-                  domain={isStatus ? [-0.25, 4.25] : ['auto', 'auto']}
-                  ticks={isStatus ? [4, 3, 2, 1, 0] : undefined}
-                  tickFormatter={isStatus ? formatHistoricStatusTick : undefined}
+                  width={42}
+                  domain={['auto', 'auto']}
                 />
                 <Tooltip
                   contentStyle={{
@@ -382,15 +468,10 @@ function HistoricGraphCard({
                     borderRadius: 8,
                     fontSize: 11,
                   }}
-                  formatter={(value) => {
-                    if (isStatus && typeof value === 'number') {
-                      return [formatHistoricStatusTick(value), title]
-                    }
-                    return [value, title]
-                  }}
+                  formatter={(value) => [value, title]}
                 />
                 <Line
-                  type={isStatus ? 'stepAfter' : 'monotone'}
+                  type="monotone"
                   dataKey="value"
                   name={title}
                   stroke={SERIES_COLOR}

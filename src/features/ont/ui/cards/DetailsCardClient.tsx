@@ -12,6 +12,9 @@ import { formatOntSerial, normalizeOntId } from '@/features/ont/lib/ont-serial'
 import type { OntContext } from '@/features/ont/types/ont'
 import { OntInfoCard, type OntInfoDetails } from '@/features/ont/ui/OntInfoCard'
 import { OntInfoCardLoading } from '@/features/ont/ui/OntInfoCardLoadings'
+import { DEFAULT_HISTORIC_CHART_DAYS } from '@/features/ont/api/comparison-historic'
+import { useOntHistoricSeriesQuery } from '@/features/ont/hooks/use-ont-historic-series-query'
+import { buildHistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
 
 interface Props {
   ont: string
@@ -25,6 +28,22 @@ export function DetailsCardClient({ ont, context }: Props) {
   const [birthCertificateLoading, setBirthCertificateLoading] = useState(true)
 
   const isInfraco = context.mode === 'infraco'
+  const oltId = context.olt?.trim() ?? ''
+  const historicQuery = useOntHistoricSeriesQuery({
+    ontSerial: ont,
+    oltId,
+    graphId: 'estado',
+    days: DEFAULT_HISTORIC_CHART_DAYS,
+    timeFilter: '3D',
+    enabled: !isInfraco && Boolean(oltId),
+  })
+  const statusHistory = useMemo(
+    () =>
+      historicQuery.data?.status === 'ok'
+        ? buildHistoricStatusBarModel(historicQuery.data.points)
+        : null,
+    [historicQuery.data],
+  )
 
   useEffect(() => {
     const controller = new AbortController()
@@ -95,6 +114,8 @@ export function DetailsCardClient({ ont, context }: Props) {
       birthCertificate={isInfraco ? null : birthCertificate}
       birthCertificateLoading={!isInfraco && birthCertificateLoading}
       showBirthCertificate={!isInfraco}
+      statusHistory={statusHistory}
+      statusHistoryLoading={historicQuery.isFetching && !statusHistory}
     />
   )
 }

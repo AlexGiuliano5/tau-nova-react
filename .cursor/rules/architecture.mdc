@@ -1,0 +1,27 @@
+---
+description: Capas, features y dueño de cada pieza en TAU Nova
+alwaysApply: true
+---
+
+# Arquitectura
+
+Fuente: `docs/arquitectura.md`. No inventar orquestadores de pantalla ni stores de datos BFF.
+
+## Carpetas
+
+- `src/app/` rutas. `src/features/<dominio>/` api, hooks, pages, ui, lib, types.
+- `src/shared/` http, tema, UI genérica. No conoce entidades de un feature.
+- Una feature no importa `ui/` de otra. Compartir → feature de dominio común o `shared`.
+
+## Dueños
+
+- **Page**: layout, modo, breadcrumb. Query **solo** si la pantalla lo necesita para armarse.
+- **Hook `useXxxQuery`**: dueño del fetch de un dato. Misma API = misma `queryKey`.
+- **`*Client`**: llama el hook y pasa el recorte a la card.
+- **Card presentacional**: props in, UI out. Cero BFF.
+
+## No hacer
+
+- `Promise.all` de todas las APIs de la vista en la page “por las dudas”.
+- Context/Zustand con el payload del BFF. Zustand = estado de app (sesión, tema, menú), no respuestas de servidor.
+- GET nuevo con `useEffect` + estado local. Lecturas → Query.

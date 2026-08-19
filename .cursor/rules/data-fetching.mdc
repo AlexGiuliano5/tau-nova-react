@@ -1,0 +1,28 @@
+---
+description: TanStack Query — fetch por dato, una key por API
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Datos (BFF)
+
+Lecturas nuevas: TanStack Query. No `useEffect` + `AbortController` + `useState` para GET.
+
+```ts
+export function useFooQuery(id: string) {
+  return useQuery({
+    queryKey: ['feature', 'recurso', id],
+    queryFn: ({ signal }) => fetchFoo(id, signal),
+    staleTime: 60_000,
+  })
+}
+```
+
+Keys nuevas: `['<feature>', '<recurso>', ...ids]`. No una segunda key para el mismo endpoint.
+
+- Un consumidor → el hook vive junto a esa card.
+- Dos o más (o page + card) → **un** hook, todos lo llaman. El cache unifica.
+- Card no montada → no hay fetch.
+- `api/*.ts`: `apiFetch` + parseo, sin React.
+- Recalcular / filtro: `useMutation` o invalidar la **misma** key. No un segundo GET paralelo.
+- 401: logout (ya en `apiFetch`). Código nuevo no debe tratar 403 como 401.

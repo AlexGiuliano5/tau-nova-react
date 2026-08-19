@@ -1,0 +1,14 @@
+---
+description: Pantallas de cards — page arma, cards pintan, hooks piden
+globs: src/features/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Cards y pantallas
+
+Flujo: card se monta → hook → skeleton → pinta. Si otra card o la page ya pidió esa `queryKey`, no hay segundo GET.
+
+- Card montada pide su dato vía hook. Card no montada = no fetch.
+- Loading por card. Spinner de página solo si falta un dato sin el cual no hay vista.
+- Si un segundo consumidor necesita el mismo dato, reutiliza el hook. No un provider de pantalla “por las dudas”.
+- Preferencias / visibilidad: ocultar = no montar.

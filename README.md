@@ -5,6 +5,8 @@ Migración a React + Vite. Fase 1: **login** + **home FTTH**.
 App **solo front**: sin backend propio ni `.env`. Las requests van directo al BFF
 (`src/config.ts` → `BFF_API_BASE_URL`).
 
+Arquitectura y convenciones: [`docs/arquitectura.md`](docs/arquitectura.md).
+
 ## Stack
 
 - React 19 + TypeScript + Vite
@@ -43,4 +45,4 @@ La URL está en `src/config.ts`. Si cambia el ambiente, editá esa constante
 - Home FTTH (hero + búsqueda + recientes)
 - **Pantalla ONT** `/ftth/ont/:ont/info` (cards + tabla vecinos Tailwind)
 - **Preferencias ONT** `/ftth/preferencias/ont` (orden/visibilidad cards y métricas)
-# tau-nova-react
+

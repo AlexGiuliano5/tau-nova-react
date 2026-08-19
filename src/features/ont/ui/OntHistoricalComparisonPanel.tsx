@@ -19,6 +19,7 @@ import {
   formatHistoricStatusTick,
   HISTORIC_CHART_DAY_OPTIONS,
   HISTORIC_STATUS_TIME_FILTER_OPTIONS,
+  HISTORIC_STATUS_Y_TICKS,
   isMetricGraph,
   isStatusOrTrafficGraph,
   type ComparisonGraphId,
@@ -427,8 +428,8 @@ function ComparisonMetricChart({
                 <YAxis
                   tick={{ fontSize: 10, fill: 'var(--text-secondary)' }}
                   width={isStatus ? 78 : 42}
-                  domain={isStatus ? [-0.25, 4.25] : ['auto', 'auto']}
-                  ticks={isStatus ? [4, 3, 2, 1, 0] : undefined}
+                  domain={isStatus ? [-0.25, HISTORIC_STATUS_Y_TICKS[0] + 0.25] : ['auto', 'auto']}
+                  ticks={isStatus ? [...HISTORIC_STATUS_Y_TICKS] : undefined}
                   tickFormatter={isStatus ? formatHistoricStatusTick : undefined}
                 />
                 <Tooltip

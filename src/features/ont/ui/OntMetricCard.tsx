@@ -9,6 +9,11 @@ import {
   ontMetricActualValueChanged,
   type OntMetricCardModel,
 } from '@/features/ont/lib/ont-metric-display'
+import {
+  getOntMetricThresholdConfig,
+  type OntMetricThresholdConfig,
+  type OntMetricThresholdTone,
+} from '@/features/ont/lib/ont-metric-thresholds'
 import { resolveOntBipMetricGraphId } from '@/features/ont/lib/resolve-ont-bip-metric-graph-id'
 import { OntBipMetricSparkline } from '@/features/ont/ui/OntBipMetricSparkline'
 
@@ -26,15 +31,10 @@ interface ThresholdSegment {
   label: string
   start: number
   end: number
-  tone: 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'neutral'
+  tone: OntMetricThresholdTone
 }
 
-interface ThresholdBarConfig {
-  min: number
-  max: number
-  segments: ThresholdSegment[]
-  tickValues?: number[]
-}
+type ThresholdBarConfig = OntMetricThresholdConfig
 
 function getMetricColorClass(color: OntMetricCardModel['color']): string {
   switch (color) {
@@ -97,47 +97,7 @@ function parseMetricNumber(value: string): number | null {
 }
 
 function getThresholdBarConfig(title: string): ThresholdBarConfig | null {
-  const normalizedTitle = title.trim().toUpperCase()
-
-  if (normalizedTitle === 'ONT RX') {
-    return {
-      min: -30,
-      max: -8,
-      segments: [
-        { label: 'Crítico', start: -30, end: -27, tone: 'red' },
-        { label: 'Advertencia', start: -27, end: -24.5, tone: 'orange' },
-        { label: 'Óptimo', start: -24.5, end: -12, tone: 'green' },
-        { label: 'POE', start: -12, end: -8, tone: 'blue' },
-      ],
-    }
-  }
-
-  if (normalizedTitle === 'OLT RX') {
-    return {
-      min: -34,
-      max: -12,
-      segments: [
-        { label: 'Crítico', start: -34, end: -30, tone: 'red' },
-        { label: 'Advertencia', start: -30, end: -27.5, tone: 'orange' },
-        { label: 'Óptimo', start: -27.5, end: -15, tone: 'green' },
-        { label: 'Alto', start: -15, end: -12, tone: 'yellow' },
-      ],
-    }
-  }
-
-  if (normalizedTitle === 'OLT TX') {
-    return {
-      min: -8,
-      max: 8,
-      segments: [
-        { label: 'Crítico', start: -8, end: -4.5, tone: 'red' },
-        { label: 'Óptimo', start: -4.5, end: 8, tone: 'green' },
-      ],
-      tickValues: [-4.5],
-    }
-  }
-
-  return null
+  return getOntMetricThresholdConfig(title)
 }
 
 function getThresholdTickValues(config: ThresholdBarConfig): number[] {

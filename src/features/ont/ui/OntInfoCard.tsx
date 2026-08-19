@@ -7,7 +7,9 @@ import { formatOntSerial } from '@/features/ont/lib/ont-serial'
 import { formatOntStatusLabel, normalizeOntStatusKey } from '@/features/ont/lib/ont-status-labels'
 import { OntBirthCertificateEmbedded } from '@/features/ont/ui/OntBirthCertificateEmbedded'
 import { OntCardTitle } from '@/features/ont/ui/OntCardChrome'
+import { OntHistoricStatusBarChart } from '@/features/ont/ui/OntHistoricStatusBarChart'
 import { infoCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
+import type { HistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
 
 export interface OntInfoDetails {
   ponId: string
@@ -29,6 +31,8 @@ interface Props {
   birthCertificate?: OntBirthCertificateResult | null
   birthCertificateLoading?: boolean
   showBirthCertificate?: boolean
+  statusHistory?: HistoricStatusBarModel | null
+  statusHistoryLoading?: boolean
 }
 
 const fieldRowClassName = 'flex items-start justify-between gap-3'
@@ -44,6 +48,8 @@ export function OntInfoCard({
   birthCertificate = null,
   birthCertificateLoading = false,
   showBirthCertificate = true,
+  statusHistory = null,
+  statusHistoryLoading = false,
 }: Props) {
   const data = ontInfo ?? {
     ponId: 'Sin Datos',
@@ -84,21 +90,33 @@ export function OntInfoCard({
         <OntCardTitle icon={FiCpu} className="text-lg md:text-[1.05rem]">
           Información de ONT
         </OntCardTitle>
-        <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[14px] font-semibold dark:text-white ${statusTone}`}
-        >
-          {statusLoading ? (
-            <>
-              <span className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              Estado: Cargando
-            </>
-          ) : (
-            <>
-              <StatusIcon className="size-3.5 shrink-0" aria-hidden />
-              Estado: {statusLabel}
-            </>
-          )}
-        </span>
+        <div className="flex min-w-0 max-w-[min(100%,18rem)] flex-col items-end gap-1.5 overflow-visible">
+          <span
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[14px] font-semibold dark:text-white ${statusTone}`}
+          >
+            {statusLoading ? (
+              <>
+                <span className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Estado: Cargando
+              </>
+            ) : (
+              <>
+                <StatusIcon className="size-3.5 shrink-0" aria-hidden />
+                Estado: {statusLabel}
+              </>
+            )}
+          </span>
+          {statusHistory ? (
+            <div className="w-full min-w-[10rem]">
+              <OntHistoricStatusBarChart model={statusHistory} variant="compact" periodLabel="72hs" />
+            </div>
+          ) : statusHistoryLoading ? (
+            <div className="flex w-full min-w-[10rem] items-center gap-1.5" aria-busy="true">
+              <span className="h-3.5 flex-1 animate-pulse rounded-full bg-(--table-stroke)" />
+              <span className="shrink-0 text-[11px] font-semibold text-(--text-secondary)">72hs</span>
+            </div>
+          ) : null}
+        </div>
       </header>
 
       <div

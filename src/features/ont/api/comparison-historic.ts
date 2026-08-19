@@ -71,6 +71,12 @@ export const GRAPH_ID_TO_HISTORICAL_METRIC: Partial<
   'ont-bip-ds': 'Ont Bip DS',
 }
 
+export function isPowerGraph(
+  id: ComparisonGraphId,
+): id is 'ont-rx' | 'ont-tx' | 'olt-rx' | 'olt-tx' {
+  return id === 'ont-rx' || id === 'ont-tx' || id === 'olt-rx' || id === 'olt-tx'
+}
+
 export function isMetricGraph(id: ComparisonGraphId): boolean {
   return id in GRAPH_ID_TO_HISTORICAL_METRIC
 }
@@ -96,15 +102,18 @@ export interface ComparisonOntSeries {
 const CHART_STATUS_ORDER = [
   'GOOD',
   'DEGRADED',
-  'SWITCHED_OFF',
   'INTERRUPTED',
-  'UNKNOWN',
+  'SWITCHED_OFF',
 ] as const satisfies readonly OntStatusKey[]
 
 const CHART_STATUS_MAX = CHART_STATUS_ORDER.length - 1
 
 const STATUS_TO_VALUE = new Map<string, number>(
   CHART_STATUS_ORDER.map((status, index) => [status, CHART_STATUS_MAX - index]),
+)
+
+export const HISTORIC_STATUS_Y_TICKS = CHART_STATUS_ORDER.map(
+  (_, index) => CHART_STATUS_MAX - index,
 )
 
 export function formatHistoricStatusTick(value: number): string {
@@ -117,12 +126,10 @@ export function formatHistoricStatusTick(value: number): string {
       return 'Disponible'
     case 'DEGRADED':
       return 'Degradado'
-    case 'SWITCHED_OFF':
-      return 'Apagada'
     case 'INTERRUPTED':
-      return 'Interrumpida'
-    default:
-      return 'Desconocido'
+      return 'Interrumpido'
+    case 'SWITCHED_OFF':
+      return 'Apagado'
   }
 }
 
@@ -422,12 +429,9 @@ async function fetchHistoricTrafficSeries(
 
 function normalizeChartStatus(raw: string): OntStatusKey {
   const key = normalizeOntStatusKey(raw)
-  if (!key) return 'UNKNOWN'
   if (key === 'REDUCED_ROBUSTNESS' || key === 'DEGRADED') return 'DEGRADED'
-  if ((CHART_STATUS_ORDER as readonly string[]).includes(key)) {
-    return key as OntStatusKey
-  }
-  return 'UNKNOWN'
+  if (key === 'GOOD' || key === 'INTERRUPTED' || key === 'SWITCHED_OFF') return key
+  return 'SWITCHED_OFF'
 }
 
 function pickNestedSource(root: Record<string, unknown>): Record<string, unknown> {
