@@ -39,10 +39,9 @@ export function formatPortTreeSeverityShort(severity: PortTreeSeverity): string 
     SWITCHED_OFF: 'Apag.',
     REDUCED_ROBUSTNESS: 'Degr.',
     DEGRADED: 'Degr.',
-    UNKNOWN: 'Desc.',
   }
-  if (key in short) return short[key as OntStatusKey] ?? 'Desc.'
-  return 'Desc.'
+  if (key in short) return short[key as OntStatusKey] ?? 'S/D'
+  return 'S/D'
 }
 
 export function portTreeSeverityBadgeClass(severity: PortTreeSeverity): string {

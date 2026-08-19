@@ -34,7 +34,7 @@ const NEUTRAL_CARD_TONE = 'border-[#d9e0e8] dark:border-white/10'
 const NO_DROPS_MESSAGE = 'La ONT no registró caídas en los últimos 7 días.'
 const MAX_VISIBLE_INTERRUPTION_ITEMS = 3
 
-type TimelineTone = 'ongoing' | 'resolved' | 'older'
+type TimelineTone = 'ongoing' | 'resolved'
 
 export function OntInterrupcionesCard({ interruptions, issue }: Props) {
   const [showHistoric, setShowHistoric] = useState(false)
@@ -53,8 +53,6 @@ export function OntInterrupcionesCard({ interruptions, issue }: Props) {
   const visibleInterruptions = showHistoric
     ? sortedInterruptions
     : sortedInterruptions.slice(0, MAX_VISIBLE_INTERRUPTION_ITEMS)
-
-  const firstResolvedIndex = visibleInterruptions.findIndex((item) => !item.isOngoing)
 
   const shouldShowNoDrops = issue === 'no-drops'
   const shouldShowWarning = issue === 'no-data'
@@ -118,15 +116,16 @@ export function OntInterrupcionesCard({ interruptions, issue }: Props) {
 
               <ul className="flex flex-col overflow-hidden rounded-xl border border-[#e8edf3] bg-[#fbfcfd] dark:border-white/10 dark:bg-white/[0.03]">
                 {visibleInterruptions.map((item, index) => {
-                  const tone = resolveTimelineTone(item, index, firstResolvedIndex)
+                  const isLatest = index === 0
                   return (
                     <li
                       key={`${item.status}-${item.date}-${item.time}-${item.duration}-${index}`}
                     >
                       <InterruptionTimelineItem
                         item={item}
-                        tone={tone}
-                        isFirst={index === 0}
+                        tone={item.isOngoing ? 'ongoing' : 'resolved'}
+                        isLatest={isLatest}
+                        isFirst={isLatest}
                         isLast={index === visibleInterruptions.length - 1}
                       />
                     </li>
@@ -146,16 +145,6 @@ export function OntInterrupcionesCard({ interruptions, issue }: Props) {
       </div>
     </div>
   )
-}
-
-function resolveTimelineTone(
-  item: OntHistoricDownItem,
-  index: number,
-  firstResolvedIndex: number,
-): TimelineTone {
-  if (item.isOngoing) return 'ongoing'
-  if (index === firstResolvedIndex) return 'resolved'
-  return 'older'
 }
 
 function InterruptionsSummary({
@@ -226,11 +215,13 @@ function SummaryMetric({
 function InterruptionTimelineItem({
   item,
   tone,
+  isLatest,
   isFirst,
   isLast,
 }: {
   item: OntHistoricDownItem
   tone: TimelineTone
+  isLatest: boolean
   isFirst: boolean
   isLast: boolean
 }) {
@@ -246,27 +237,70 @@ function InterruptionTimelineItem({
 
   return (
     <div
-      className={`relative flex items-stretch gap-3 px-3 py-3 ${
-        !isLast ? 'border-b border-[#e8edf3] dark:border-white/8' : ''
-      } ${resolveRowToneClassName(tone)}`}
+      className={clsx(
+        'relative flex items-stretch gap-3 px-3',
+        isLatest ? 'py-3' : 'py-1.5',
+        !isLast && 'border-b border-[#e8edf3] dark:border-white/8',
+        resolveRowToneClassName(tone, isLatest),
+      )}
     >
-      <TimelineRail tone={tone} isFirst={isFirst} isLast={isLast} />
+      <TimelineRail tone={tone} isLatest={isLatest} isFirst={isFirst} isLast={isLast} />
 
-      <div className="flex w-[3.25rem] shrink-0 flex-col pt-0.5 leading-tight">
-        <span className="text-[12px] font-semibold text-(--text-primary)">{dayMonth}</span>
-        <span className="text-[11px] tabular-nums text-(--text-secondary)/75">{time}</span>
+      <div
+        className={clsx(
+          'flex w-[3.25rem] shrink-0 flex-col leading-tight',
+          isLatest ? 'pt-0.5' : 'pt-px',
+        )}
+      >
+        <span
+          className={clsx(
+            'font-semibold text-(--text-primary)',
+            isLatest ? 'text-[12px]' : 'text-[11px]',
+          )}
+        >
+          {dayMonth}
+        </span>
+        <span
+          className={clsx(
+            'tabular-nums text-(--text-secondary)/75',
+            isLatest ? 'text-[11px]' : 'text-[10px]',
+          )}
+        >
+          {time}
+        </span>
       </div>
 
-      <div className="min-w-0 flex-1 pt-0.5 leading-tight">
-        <p className="truncate text-[12.5px] font-semibold text-(--text-primary)">{title}</p>
-        <p className="mt-1 text-[11px] text-(--text-secondary)/80">
+      <div
+        className={clsx(
+          'min-w-0 flex-1 leading-tight',
+          isLatest ? 'pt-0.5' : 'pt-px',
+        )}
+      >
+        <p
+          className={clsx(
+            'truncate font-semibold text-(--text-primary)',
+            isLatest ? 'text-[12.5px]' : 'text-[11px]',
+          )}
+        >
+          {title}
+        </p>
+        <p
+          className={clsx(
+            'text-(--text-secondary)/80',
+            isLatest ? 'mt-1 text-[11px]' : 'mt-0.5 text-[10px]',
+          )}
+        >
           Duración{' '}
           <span className="font-semibold text-(--text-primary)">{durationLabel}</span>
         </p>
       </div>
 
       <span
-        className={`mt-0.5 inline-flex h-fit shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-wide ${resolveBadgeClassName(tone)}`}
+        className={clsx(
+          'inline-flex h-fit shrink-0 rounded-full font-semibold tracking-wide',
+          isLatest ? 'mt-0.5 px-2.5 py-1 text-[10px]' : 'mt-px px-2 py-0.5 text-[9px]',
+          resolveBadgeClassName(tone),
+        )}
       >
         {badgeLabel}
       </span>
@@ -278,10 +312,12 @@ const timelineLineClassName = 'w-px bg-[#d5dde7] dark:bg-white/15'
 
 function TimelineRail({
   tone,
+  isLatest,
   isFirst,
   isLast,
 }: {
   tone: TimelineTone
+  isLatest: boolean
   isFirst: boolean
   isLast: boolean
 }) {
@@ -291,7 +327,7 @@ function TimelineRail({
         className={`h-1.5 w-px shrink-0 ${isFirst ? 'bg-transparent' : timelineLineClassName}`}
         aria-hidden
       />
-      <TimelineDot tone={tone} />
+      <TimelineDot tone={tone} isLatest={isLatest} />
       <span
         className={`min-h-1 w-px flex-1 ${isLast ? 'bg-transparent' : timelineLineClassName}`}
         aria-hidden
@@ -300,43 +336,60 @@ function TimelineRail({
   )
 }
 
-function TimelineDot({ tone }: { tone: TimelineTone }) {
+function TimelineDot({ tone, isLatest }: { tone: TimelineTone; isLatest: boolean }) {
   if (tone === 'ongoing') {
     return (
       <span
-        className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center"
+        className={clsx(
+          'relative z-10 inline-flex shrink-0 items-center justify-center',
+          isLatest ? 'size-4' : 'size-3.5',
+        )}
         aria-hidden
       >
-        <span className="absolute size-3 animate-ping rounded-full bg-(--state-03)/35" />
-        <span className="relative size-2.5 rounded-full bg-(--state-03) ring-2 ring-white dark:ring-[#1f1f1f]" />
-      </span>
-    )
-  }
-
-  if (tone === 'resolved') {
-    return (
-      <span
-        className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-(--state-01) text-white shadow-[0_0_0_3px_rgb(108_166_82/0.18)]"
-        aria-hidden
-      >
-        <FiCheck className="size-2.5 stroke-[3]" />
+        {isLatest ? (
+          <span className="absolute size-3 animate-ping rounded-full bg-(--state-03)/35" />
+        ) : null}
+        <span
+          className={clsx(
+            'relative rounded-full bg-(--state-03) ring-2 ring-white dark:ring-[#1f1f1f]',
+            isLatest ? 'size-2.5' : 'size-2',
+          )}
+        />
       </span>
     )
   }
 
   return (
     <span
-      className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center"
+      className={clsx(
+        'relative z-10 inline-flex shrink-0 items-center justify-center',
+        isLatest ? 'size-4' : 'size-3.5',
+      )}
       aria-hidden
     >
-      <span className="size-3 rounded-full border-[1.5px] border-[#b7c0cc] bg-white dark:border-white/35 dark:bg-[#1f1f1f]" />
+      {isLatest ? (
+        <span className="absolute size-3.5 animate-ping rounded-full bg-(--state-01)/35" />
+      ) : null}
+      <span
+        className={clsx(
+          'relative inline-flex items-center justify-center rounded-full bg-(--state-01) text-white',
+          isLatest
+            ? 'size-4 shadow-[0_0_0_3px_rgb(108_166_82/0.18)]'
+            : 'size-3',
+        )}
+      >
+        <FiCheck className={clsx('stroke-[3]', isLatest ? 'size-2.5' : 'size-2')} />
+      </span>
     </span>
   )
 }
 
-function resolveRowToneClassName(tone: TimelineTone): string {
+function resolveRowToneClassName(tone: TimelineTone, isLatest: boolean): string {
   if (tone === 'ongoing') {
     return 'bg-[color-mix(in_srgb,var(--state-03)_4%,transparent)]'
+  }
+  if (isLatest) {
+    return 'bg-[color-mix(in_srgb,var(--state-01)_4%,transparent)]'
   }
   return ''
 }
@@ -345,10 +398,7 @@ function resolveBadgeClassName(tone: TimelineTone): string {
   if (tone === 'ongoing') {
     return 'bg-(--tag-state-03) text-(--state-03) dark:bg-(--state-03)/20 dark:text-[#ff9aa0]'
   }
-  if (tone === 'resolved') {
-    return 'bg-(--tag-state-01) text-(--state-01) dark:bg-(--state-01)/20 dark:text-[#9ad48a]'
-  }
-  return 'bg-[#e8ecf1] text-(--text-secondary) dark:bg-white/10 dark:text-(--text-secondary)'
+  return 'bg-(--tag-state-01) text-(--state-01) dark:bg-(--state-01)/20 dark:text-[#9ad48a]'
 }
 
 function resolveInterrupcionesCardTone(issue: OntInterruptionsIssue): string {

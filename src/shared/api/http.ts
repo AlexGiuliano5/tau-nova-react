@@ -14,14 +14,17 @@ export class ApiError extends Error {
 type ApiFetchInit = RequestInit & {
   /** Si false, no adjunta Bearer (login). Default true. */
   auth?: boolean
+  /** Default: BFF. Facade Nova u otro origin. */
+  baseUrl?: string
 }
 
 /**
- * Fetch browser → BFF con Bearer del auth store.
+ * Fetch autenticado con Bearer del auth store.
+ * Default → BFF. Pasá `baseUrl` para el facade Nova.
  * Ante 401 limpia sesión y manda a /login.
  */
 export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<Response> {
-  const { auth = true, headers: initHeaders, ...rest } = init
+  const { auth = true, baseUrl, headers: initHeaders, ...rest } = init
   const token = useAuthStore.getState().token
 
   const headers = new Headers(initHeaders)
@@ -33,7 +36,8 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
     headers.set('Authorization', `Bearer ${token}`)
   }
 
-  const url = path.startsWith('http') ? path : `${getBffBaseUrl()}${path}`
+  const root = (baseUrl ?? getBffBaseUrl()).replace(/\/+$/, '')
+  const url = path.startsWith('http') ? path : `${root}${path}`
   const response = await fetch(url, { ...rest, headers })
 
   if (auth && (response.status === 401 || response.status === 403)) {

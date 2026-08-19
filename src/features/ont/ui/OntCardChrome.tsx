@@ -17,7 +17,7 @@ export function OntCardTitle({
   return (
     <Tag
       className={clsx(
-        'inline-flex items-center gap-2 text-base leading-tight font-semibold tracking-tight md:text-[1.05rem]',
+        'inline-flex min-w-0 items-center gap-2 text-base leading-tight font-semibold tracking-tight md:text-[1.05rem]',
         className,
       )}
     >

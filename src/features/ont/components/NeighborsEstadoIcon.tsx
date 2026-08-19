@@ -14,7 +14,7 @@ export function NeighborsEstadoIcon({ estadoRaw, iconSize = 15 }: Props) {
   const status = normalizeOntStatusKey(estadoRaw)
   const label = formatOntStatusLabel(estadoRaw)
 
-  if (!estadoRaw.trim() || estadoRaw === 'Sin Datos') {
+  if (!estadoRaw.trim() || estadoRaw === 'Sin Datos' || !status) {
     return (
       <span className="text-(--text-secondary)" title="Sin Datos">
         Sin Datos

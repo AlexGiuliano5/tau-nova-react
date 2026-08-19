@@ -57,14 +57,14 @@ export function toggleOntInfoCardVisibility(
 export function resolveOntInfoDesktopItemWidthClass(item: Pick<OntInfoOrderItem, 'span'>): string {
   switch (item.span) {
     case 'full':
-      return 'w-full shrink-0 grow-0 basis-full'
+      return 'w-full min-w-0 shrink-0 grow-0 basis-full'
     case 'third':
-      return 'w-[calc(33.333%-0.25rem)] shrink-0 grow-0 basis-[calc(33.333%-0.25rem)]'
+      return 'min-w-0 flex-1 basis-0'
     case 'two-thirds':
-      return 'w-[calc(66.666%-0.25rem)] shrink-0 grow-0 basis-[calc(66.666%-0.25rem)]'
+      return 'min-w-0 flex-[2] basis-0'
     case 'half':
     default:
-      return 'w-[calc(50%-0.25rem)] shrink-0 grow-0 basis-[calc(50%-0.25rem)]'
+      return 'min-w-0 flex-1 basis-0'
   }
 }
 

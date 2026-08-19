@@ -1,6 +1,6 @@
 # Arquitectura — TAU Nova
 
-SPA de operaciones FTTH. Solo front: las requests van al BFF (`src/config.ts`).
+SPA de operaciones FTTH. Solo front: las requests van al BFF o al facade Nova (`src/config.ts`).
 
 Este documento es la fuente de verdad. Las reglas de Cursor (`.cursor/rules/`) la refuerzan al generar código.
 
@@ -9,7 +9,7 @@ Este documento es la fuente de verdad. Las reglas de Cursor (`.cursor/rules/`) l
 ```
 src/
   app/                 rutas
-  config.ts            URL del BFF
+  config.ts            URL del BFF y del facade Nova
   features/<dominio>/  api, hooks, pages, ui, lib, types, stores
   shared/              http, tema, UI sin dominio FTTH
 ```
@@ -78,7 +78,8 @@ Hay cards de lectura todavía con `useEffect` (`ClienteCardClient`). Es deuda: e
 ## Auth y HTTP
 
 - Token JWT en `sessionStorage` (`auth-store`).
-- Requests autenticadas: `apiFetch` (`src/shared/api/http.ts`).
+- Requests autenticadas: `apiFetch` (`src/shared/api/http.ts`). Default BFF; `baseUrl` para el facade Nova. Siempre Bearer salvo login.
+- APIs Nova: envelope `{ type, title, status, detail, data }`. El `status` del JSON no tiene que coincidir con el HTTP. Parseo: `readApiEnvelope`. 200 OK · 206 sin datos · 202 error técnico · 400 inválido · 204 auth.
 - Login no usa Bearer.
 - 401: logout y redirect a `/login`. No tratar 403 igual que 401 en código nuevo (un 403 de recurso no debería echar la sesión).
 

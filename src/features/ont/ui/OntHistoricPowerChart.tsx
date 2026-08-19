@@ -12,7 +12,10 @@ import {
 import clsx from 'clsx'
 
 import {
+  extendThresholdSegmentsToDomain,
   getOntMetricThresholdConfig,
+  ontMetricThresholdBandFill,
+  ontMetricThresholdSwatchClass,
   resolveOntMetricThresholdSegment,
   type OntMetricThresholdSegment,
   type OntMetricThresholdTone,
@@ -74,8 +77,13 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
         Math.max(thresholds.max, dataMax),
       ] as [number, number]
     }
-    return ['auto', 'auto'] as const
+    return null
   }, [rows, thresholds])
+
+  const bandSegments = useMemo(() => {
+    if (!thresholds || !yDomain) return []
+    return extendThresholdSegmentsToDomain(thresholds, yDomain[0], yDomain[1])
+  }, [thresholds, yDomain])
 
   const displayUnit = unit.trim() || 'dBm'
 
@@ -84,19 +92,17 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
       <div className="historic-line-chart h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-            {thresholds
-              ? thresholds.segments.map((segment) => (
-                  <ReferenceArea
-                    key={`${segment.label}-${segment.start}`}
-                    y1={segment.start}
-                    y2={segment.end}
-                    fill={bandFill(segment.tone)}
-                    fillOpacity={1}
-                    ifOverflow="extendDomain"
-                    strokeOpacity={0}
-                  />
-                ))
-              : null}
+            {bandSegments.map((segment) => (
+              <ReferenceArea
+                key={`${segment.label}-${segment.start}`}
+                y1={segment.start}
+                y2={segment.end}
+                fill={ontMetricThresholdBandFill(segment.tone)}
+                fillOpacity={1}
+                ifOverflow="extendDomain"
+                strokeOpacity={0}
+              />
+            ))}
             <CartesianGrid stroke="var(--table-stroke)" strokeDasharray="3 3" opacity={0.7} />
             <XAxis
               dataKey="label"
@@ -107,7 +113,7 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
             <YAxis
               tick={{ fontSize: 10, fill: 'var(--text-secondary)' }}
               width={46}
-              domain={yDomain}
+              domain={yDomain ?? ['auto', 'auto']}
               tickFormatter={(value) => String(value)}
             />
             <Tooltip
@@ -143,7 +149,10 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
         </li>
         {legendItems(thresholds?.segments ?? []).map((item) => (
           <li key={item.label} className="inline-flex items-center gap-1.5">
-            <span className={clsx('h-2.5 w-2.5 rounded-[2px]', swatchClass(item.tone))} aria-hidden />
+            <span
+              className={clsx('h-2.5 w-2.5 rounded-[2px]', ontMetricThresholdSwatchClass(item.tone))}
+              aria-hidden
+            />
             {item.label}
           </li>
         ))}
@@ -153,7 +162,6 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
 }
 
 function chartStatusLabel(segment: OntMetricThresholdSegment): string {
-  if (segment.tone === 'green') return 'Normal'
   return segment.label
 }
 
@@ -173,43 +181,10 @@ export function statusTextClass(tone: OntMetricThresholdTone): string {
   }
 }
 
-function bandFill(tone: OntMetricThresholdTone): string {
-  switch (tone) {
-    case 'red':
-      return 'color-mix(in srgb, var(--card-red) 22%, var(--card))'
-    case 'orange':
-    case 'yellow':
-      return 'color-mix(in srgb, var(--card-yellow) 28%, var(--card))'
-    case 'green':
-    case 'blue':
-      return 'color-mix(in srgb, var(--primary) 16%, var(--card))'
-    default:
-      return 'transparent'
-  }
-}
-
-function swatchClass(tone: OntMetricThresholdTone): string {
-  switch (tone) {
-    case 'red':
-      return 'bg-(--card-red)'
-    case 'orange':
-      return 'bg-(--card-orange)'
-    case 'yellow':
-      return 'bg-(--card-yellow)'
-    case 'green':
-      return 'bg-(--card-green)'
-    case 'blue':
-      return 'bg-(--primary)'
-    default:
-      return 'bg-(--gray-01)'
-  }
-}
-
 function legendItems(segments: OntMetricThresholdSegment[]): OntMetricThresholdSegment[] {
   const seen = new Set<string>()
   const items: OntMetricThresholdSegment[] = []
   for (const segment of segments) {
-    if (segment.tone === 'green' || segment.tone === 'blue') continue
     if (seen.has(segment.label)) continue
     seen.add(segment.label)
     items.push(segment)

@@ -74,17 +74,72 @@ export function ontMetricThresholdTitleForGraph(
   }
 }
 
+export function ontMetricThresholdSwatchClass(tone: OntMetricThresholdTone): string {
+  switch (tone) {
+    case 'red':
+      return 'bg-(--card-red)'
+    case 'orange':
+      return 'bg-(--card-orange)'
+    case 'yellow':
+      return 'bg-(--card-yellow)'
+    case 'green':
+      return 'bg-(--card-green)'
+    case 'blue':
+      return 'bg-(--primary-2)'
+    default:
+      return 'bg-(--gray-03)'
+  }
+}
+
+/** Fondos de banda para el gráfico histórico: mismos hues que la barra de la card. */
+export function ontMetricThresholdBandFill(tone: OntMetricThresholdTone): string {
+  switch (tone) {
+    case 'red':
+      return 'color-mix(in srgb, var(--card-red) 22%, var(--card))'
+    case 'orange':
+      return 'color-mix(in srgb, var(--card-orange) 28%, var(--card))'
+    case 'yellow':
+      return 'color-mix(in srgb, var(--card-yellow) 28%, var(--card))'
+    case 'green':
+      return 'color-mix(in srgb, var(--card-green) 22%, var(--card))'
+    case 'blue':
+      return 'color-mix(in srgb, var(--primary-2) 18%, var(--card))'
+    default:
+      return 'transparent'
+  }
+}
+
+/** Estira el primer/último tramo para cubrir valores fuera de la escala (como el ACTUAL de la card). */
+export function extendThresholdSegmentsToDomain(
+  config: OntMetricThresholdConfig,
+  domainMin: number,
+  domainMax: number,
+): OntMetricThresholdSegment[] {
+  if (config.segments.length === 0) return []
+  return config.segments.map((segment, index) => {
+    if (index === 0) {
+      return { ...segment, start: Math.min(segment.start, domainMin) }
+    }
+    if (index === config.segments.length - 1) {
+      return { ...segment, end: Math.max(segment.end, domainMax) }
+    }
+    return segment
+  })
+}
+
 export function resolveOntMetricThresholdSegment(
   value: number,
   config: OntMetricThresholdConfig,
 ): OntMetricThresholdSegment | null {
   const lastIndex = config.segments.length - 1
-  return (
-    config.segments.find((segment, index) => {
-      if (index === lastIndex) {
-        return value >= segment.start && value <= segment.end
-      }
-      return value >= segment.start && value < segment.end
-    }) ?? null
-  )
+  const inRange = config.segments.find((segment, index) => {
+    if (index === lastIndex) {
+      return value >= segment.start && value <= segment.end
+    }
+    return value >= segment.start && value < segment.end
+  })
+  if (inRange) return inRange
+  if (value < config.min) return config.segments[0] ?? null
+  if (value > config.max) return config.segments[lastIndex] ?? null
+  return null
 }

@@ -11,6 +11,7 @@ import {
 } from '@/features/ont/lib/ont-metric-display'
 import {
   getOntMetricThresholdConfig,
+  ontMetricThresholdSwatchClass,
   type OntMetricThresholdConfig,
   type OntMetricThresholdTone,
 } from '@/features/ont/lib/ont-metric-thresholds'
@@ -71,20 +72,7 @@ function getMetricAccentClassName(color: OntMetricCardModel['color']): string {
 }
 
 function getThresholdToneClassName(tone: ThresholdSegment['tone']): string {
-  switch (tone) {
-    case 'red':
-      return 'bg-(--card-red)'
-    case 'orange':
-      return 'bg-(--card-orange)'
-    case 'yellow':
-      return 'bg-(--card-yellow)'
-    case 'green':
-      return 'bg-(--card-green)'
-    case 'blue':
-      return 'bg-(--primary-2)'
-    default:
-      return 'bg-(--gray-03)'
-  }
+  return ontMetricThresholdSwatchClass(tone)
 }
 
 function parseMetricNumber(value: string): number | null {

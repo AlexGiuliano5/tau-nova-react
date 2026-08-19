@@ -50,11 +50,11 @@ function OntDetailLayoutBody({ ont }: { ont: string }) {
   const decodedOnt = decodeURIComponent(ont).trim()
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <RecentNetworkElementSearchRecorder value={decodedOnt} />
       <OntDetailBreadcrumb ont={ont} showLinkIndicator />
       <OntDetailTabs ont={ont} />
-      <div className="relative min-h-0 flex-1 overflow-auto">
+      <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         {mountedTabs.info ? (
           <div
             className={clsx(!isInfo && 'hidden')}

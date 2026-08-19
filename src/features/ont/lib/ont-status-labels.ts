@@ -4,7 +4,6 @@ export type OntStatusKey =
   | 'SWITCHED_OFF'
   | 'REDUCED_ROBUSTNESS'
   | 'DEGRADED'
-  | 'UNKNOWN'
 
 const labelByKey: Record<OntStatusKey, string> = {
   GOOD: 'Disponible',
@@ -12,8 +11,9 @@ const labelByKey: Record<OntStatusKey, string> = {
   SWITCHED_OFF: 'Apagada',
   REDUCED_ROBUSTNESS: 'Degradado',
   DEGRADED: 'Degradado',
-  UNKNOWN: 'Desconocido',
 }
+
+const MISSING_STATUS_KEYS = new Set(['', '-', '—', 'UNKNOWN', 'DESCONOCIDO', 'SIN_DATOS'])
 
 function isOntStatusKey(value: string): value is OntStatusKey {
   return value in labelByKey
@@ -21,7 +21,7 @@ function isOntStatusKey(value: string): value is OntStatusKey {
 
 export function normalizeOntStatusKey(raw: string): OntStatusKey | string {
   const normalized = raw.trim().toUpperCase().replace(/\s+/g, '_')
-  if (!normalized) return ''
+  if (MISSING_STATUS_KEYS.has(normalized)) return ''
   if (normalized === 'OK') return 'GOOD'
   if (
     normalized === 'REDUCES_ROBUSTNESS' ||
@@ -37,9 +37,9 @@ export function normalizeOntStatusKey(raw: string): OntStatusKey | string {
 
 export function formatOntStatusLabel(raw: string): string {
   const key = normalizeOntStatusKey(raw)
-  if (!key) return 'Sin datos'
+  if (!key) return 'Sin Datos'
   if (isOntStatusKey(key)) return labelByKey[key]
-  return 'Desconocido'
+  return 'Sin Datos'
 }
 
 const aggregateMetricLabels: Record<string, string> = {
@@ -54,6 +54,6 @@ const aggregateMetricLabels: Record<string, string> = {
 /** Etiquetas para métricas agregadas de gráficos OLT/puerto (claves del BFF). */
 export function formatOntAggregateMetricLabel(metric: string): string {
   const trimmed = metric.trim()
-  if (!trimmed) return 'Sin datos'
+  if (!trimmed) return 'Sin Datos'
   return aggregateMetricLabels[trimmed] ?? trimmed
 }

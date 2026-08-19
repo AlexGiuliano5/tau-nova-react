@@ -1,6 +1,7 @@
 import { normalizeOntId } from '@/features/ont/lib/ont-serial'
 import type { OntClientInfo } from '@/features/ont/types/ont'
-import { parseJsonResponse } from '@/shared/api/bff'
+import { getNovaFacadeBaseUrl } from '@/shared/api/bff'
+import { readApiEnvelope } from '@/shared/api/envelope'
 import { apiFetch } from '@/shared/api/http'
 
 /** Vacío / null / undefined → "Sin Datos" (igual que tau-nova `toTextOrNoData`). */
@@ -26,15 +27,16 @@ export async function fetchOntClientInfo(
   const normalizedOnt = normalizeOntId(ont)
   if (!normalizedOnt) return null
 
-  const response = await apiFetch(
-    `/api/services/ont/info/${encodeURIComponent(normalizedOnt)}`,
-    { method: 'GET', signal },
-  )
+  const response = await apiFetch(`/ont/${encodeURIComponent(normalizedOnt)}/getCustomer`, {
+    method: 'GET',
+    baseUrl: getNovaFacadeBaseUrl(),
+    signal,
+  })
 
-  if (response.status === 202 || !response.ok) return null
+  const envelope = await readApiEnvelope(response)
+  if (!envelope.ok) return null
 
-  const data = await parseJsonResponse(response)
-  const payload = normalizeOntInfoPayload(data)
+  const payload = mapOntInfoPayload(envelope.data)
   if (!payload) return null
 
   const calle = toStringOrEmpty(payload.calle).trim()
@@ -46,7 +48,7 @@ export async function fetchOntClientInfo(
 
   return {
     nombre: toTextOrNoData(payload.abonado),
-    numeroCliente: toTextOrNoData(payload.serviceAccount),
+    numeroCliente: 'Sin Datos',
     provincia: toTextOrNoData(payload.province),
     localidad: toTextOrNoData(payload.localidad),
     direccion: direccion || 'Sin Datos',
@@ -56,28 +58,10 @@ export async function fetchOntClientInfo(
   }
 }
 
-function normalizeOntInfoPayload(data: unknown): Record<string, unknown> | null {
-  const direct = mapOntInfoPayload(data)
-  if (direct) return direct
-  if (!data || typeof data !== 'object') return null
-
-  for (const value of Object.values(data as Record<string, unknown>)) {
-    const mapped = mapOntInfoPayload(value)
-    if (mapped) return mapped
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        const mappedFromArray = mapOntInfoPayload(item)
-        if (mappedFromArray) return mappedFromArray
-      }
-    }
-  }
-  return null
-}
-
 function mapOntInfoPayload(data: unknown): Record<string, unknown> | null {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return null
   const source = data as Record<string, unknown>
-  const requiredKeys = ['abonado', 'serviceAccount', 'localidad', 'province', 'calle']
+  const requiredKeys = ['abonado', 'localidad', 'province', 'calle']
   if (!requiredKeys.some((key) => key in source)) return null
   return source
 }

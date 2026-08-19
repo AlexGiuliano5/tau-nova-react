@@ -1,7 +1,11 @@
-import { BFF_API_BASE_URL } from '@/config'
+import { BFF_API_BASE_URL, NOVA_FACADE_API_BASE_URL } from '@/config'
 
 export function getBffBaseUrl(): string {
   return BFF_API_BASE_URL.replace(/\/+$/, '')
+}
+
+export function getNovaFacadeBaseUrl(): string {
+  return NOVA_FACADE_API_BASE_URL.replace(/\/+$/, '')
 }
 
 export async function parseJsonResponse(response: Response): Promise<unknown> {

@@ -1,7 +1,8 @@
 import { normalizeOntId } from '@/features/ont/lib/ont-serial'
 import { toStringOrEmpty } from '@/features/ont/lib/metrics-grid'
 import type { BffOntInfoByOntResponse } from '@/features/ont/types/ont'
-import { parseJsonResponse } from '@/shared/api/bff'
+import { getNovaFacadeBaseUrl } from '@/shared/api/bff'
+import { readApiEnvelope } from '@/shared/api/envelope'
 import { apiFetch } from '@/shared/api/http'
 
 export type InfoByOntResult =
@@ -16,21 +17,29 @@ export async function fetchOntInfoByOnt(
   const normalizedOntId = normalizeOntId(ontId)
   if (!normalizedOntId) return { ok: false, error: 'unknown' }
 
-  const response = await apiFetch('/api/services/ont/InfoByOnt', {
+  const response = await apiFetch('/ont/infoByOnt', {
     method: 'POST',
+    baseUrl: getNovaFacadeBaseUrl(),
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ oltId, ontId: normalizedOntId }),
+    body: JSON.stringify({
+      ontId: normalizedOntId,
+      oltId: oltId.trim() || null,
+    }),
     signal,
   })
 
-  if (response.status === 204) return { ok: false, error: 'auth' }
-  if (response.status === 206) return { ok: false, error: 'no-data' }
-  if (!response.ok) return { ok: false, error: 'unknown' }
+  const envelope = await readApiEnvelope(response)
+  if (!envelope.ok) {
+    if (envelope.error === 'auth') return { ok: false, error: 'auth' }
+    if (envelope.error === 'no-data') return { ok: false, error: 'no-data' }
+    return { ok: false, error: 'unknown' }
+  }
 
-  const data = await parseJsonResponse(response)
-  if (!data || typeof data !== 'object') return { ok: false, error: 'unknown' }
+  if (!envelope.data || typeof envelope.data !== 'object') {
+    return { ok: false, error: 'unknown' }
+  }
 
-  const source = data as Record<string, unknown>
+  const source = envelope.data as Record<string, unknown>
   return {
     ok: true,
     data: {

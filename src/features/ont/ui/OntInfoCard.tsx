@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiCheck, FiCpu, FiHelpCircle } from 'react-icons/fi'
+import { FiAlertTriangle, FiCheck, FiCpu, FiMinus } from 'react-icons/fi'
 import { IoOpenOutline } from 'react-icons/io5'
 import { Link } from 'react-router-dom'
 
@@ -86,11 +86,11 @@ export function OntInfoCard({
 
   return (
     <div className={infoCardClassName}>
-      <header className="flex items-start justify-between gap-3">
-        <OntCardTitle icon={FiCpu} className="text-lg md:text-[1.05rem]">
+      <header className="flex min-w-0 items-start justify-between gap-3">
+        <OntCardTitle icon={FiCpu} className="min-w-0 text-lg md:text-[1.05rem]">
           Información de ONT
         </OntCardTitle>
-        <div className="flex min-w-0 max-w-[min(100%,18rem)] flex-col items-end gap-1.5 overflow-visible">
+        <div className="flex min-w-0 max-w-[min(100%,18rem)] flex-col items-end gap-1.5">
           <span
             className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[14px] font-semibold dark:text-white ${statusTone}`}
           >
@@ -107,11 +107,11 @@ export function OntInfoCard({
             )}
           </span>
           {statusHistory ? (
-            <div className="w-full min-w-[10rem]">
+            <div className="w-full min-w-0">
               <OntHistoricStatusBarChart model={statusHistory} variant="compact" periodLabel="72hs" />
             </div>
           ) : statusHistoryLoading ? (
-            <div className="flex w-full min-w-[10rem] items-center gap-1.5" aria-busy="true">
+            <div className="flex w-full min-w-0 items-center gap-1.5" aria-busy="true">
               <span className="h-3.5 flex-1 animate-pulse rounded-full bg-(--table-stroke)" />
               <span className="shrink-0 text-[11px] font-semibold text-(--text-secondary)">72hs</span>
             </div>
@@ -230,5 +230,6 @@ function resolveStatusIcon(statusKey: string) {
   ) {
     return FiAlertTriangle
   }
-  return FiHelpCircle
+  if (statusKey === 'SWITCHED_OFF') return FiMinus
+  return FiMinus
 }

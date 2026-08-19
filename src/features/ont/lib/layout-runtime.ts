@@ -33,14 +33,14 @@ export function prepareOntInfoRuntimeCards(
 export function resolveOntInfoResponsiveItemWidthClass(item: Pick<OntInfoOrderItem, 'span'>): string {
   switch (item.span) {
     case 'full':
-      return 'w-full shrink-0 grow-0 basis-full'
+      return 'w-full min-w-0 shrink-0 grow-0 basis-full'
     case 'third':
-      return 'w-full shrink-0 grow-0 basis-full md:w-[calc(33.333%-0.25rem)] md:basis-[calc(33.333%-0.25rem)]'
+      return 'w-full min-w-0 basis-full md:flex-1 md:basis-0'
     case 'two-thirds':
-      return 'w-full shrink-0 grow-0 basis-full md:w-[calc(66.666%-0.25rem)] md:basis-[calc(66.666%-0.25rem)]'
+      return 'w-full min-w-0 basis-full md:flex-[2] md:basis-0'
     case 'half':
     default:
-      return 'w-full shrink-0 grow-0 basis-full md:w-[calc(50%-0.25rem)] md:basis-[calc(50%-0.25rem)]'
+      return 'w-full min-w-0 basis-full md:flex-1 md:basis-0'
   }
 }
 
@@ -64,7 +64,7 @@ export function resolveOntInfoDesktopSlotWrapperClass(
   rowIndices: number[],
 ): string {
   if (!isOntInfoPartialCardSpan(item.span)) {
-    return 'flex flex-col'
+    return 'flex min-w-0 flex-col'
   }
 
   const mixedWithTallHalf = rowHasTallHalfCard(cards, rowIndices)
@@ -72,7 +72,7 @@ export function resolveOntInfoDesktopSlotWrapperClass(
     mixedWithTallHalf || !isOntInfoCompactHalfCard(item.id)
 
   return clsx(
-    'flex flex-col self-stretch [&>*]:h-full',
+    'flex min-w-0 flex-col self-stretch [&>*]:h-full',
     useTallHalfHeight && 'min-h-[224px]',
   )
 }

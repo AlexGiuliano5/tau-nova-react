@@ -1,6 +1,6 @@
 # TAU Nova — guía para agentes
 
-SPA React (Vite) de operaciones FTTH. Solo front; el BFF está en `src/config.ts`.
+SPA React (Vite) de operaciones FTTH. Solo front; BFF y facade Nova están en `src/config.ts`.
 
 Leé [`docs/arquitectura.md`](docs/arquitectura.md) antes de agregar pantallas, cards o llamadas al BFF.
 

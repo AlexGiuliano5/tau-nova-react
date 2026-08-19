@@ -136,7 +136,7 @@ export function OntInfoPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3" aria-busy={skeletonOnly || undefined}>
+    <div className="flex min-w-0 flex-col gap-3" aria-busy={skeletonOnly || undefined}>
       <OntInfoStreamingLayout
         cards={runtimeCards}
         isDesktop={isDesktop}
@@ -170,9 +170,9 @@ function OntInfoStreamingLayout({
 
   if (!isDesktop) {
     return (
-      <div className="flex flex-col gap-3 pb-2">
+      <div className="flex min-w-0 flex-col gap-3 pb-2">
         {cards.map((card) => (
-          <div key={card.id} className="w-full">
+          <div key={card.id} className="w-full min-w-0">
             {renderSlot(card)}
           </div>
         ))}
@@ -183,9 +183,9 @@ function OntInfoStreamingLayout({
   const rows = buildDesktopVisualRows(cards)
 
   return (
-    <div className="flex flex-col gap-3 pb-2">
+    <div className="flex min-w-0 flex-col gap-3 pb-2">
       {rows.map((rowIndices) => (
-        <div key={rowIndices.join('-')} className="flex w-full flex-col gap-3 md:flex-row">
+        <div key={rowIndices.join('-')} className="flex w-full min-w-0 flex-col gap-3 md:flex-row">
           {rowIndices.map((itemIndex) => {
             const card = cards[itemIndex]
             if (!card) return null
