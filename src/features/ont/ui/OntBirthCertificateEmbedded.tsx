@@ -3,8 +3,10 @@ import clsx from 'clsx'
 import { FiFileText } from 'react-icons/fi'
 import { IoChevronDown } from 'react-icons/io5'
 
-import type { OntBirthCertificateResult } from '@/features/ont/api/birth-certificate'
+import type { OntBirthCertificateItem, OntBirthCertificateResult } from '@/features/ont/api/birth-certificate'
 import { FtthDataIssueNotice } from '@/features/ftth/components/FtthDataIssueNotice'
+import { hasAnyOntValue } from '@/features/ont/lib/missing-value'
+import { OntCardEmptyBody } from '@/features/ont/ui/OntCardChrome'
 
 interface Props {
   birthCertificate: OntBirthCertificateResult | null
@@ -23,19 +25,12 @@ export function OntBirthCertificateEmbedded({
   const issue = birthCertificate?.issue ?? 'no-data'
   const certificate = certificates[0] ?? null
   const shouldShowError = issue === 'error' || issue === 'unexpected'
-  const shouldShowWarning = issue === 'no-data'
-  const shouldShowData = issue === 'none' && certificate !== null
+  const hasCertificateData = Boolean(certificate) && certificateHasAnyValue(certificate)
+  const shouldShowData = issue === 'none' && hasCertificateData
 
   return (
-    <section className="flex min-w-0 flex-col gap-2" aria-label="Certificado de nacimiento">
-      <h2
-        className={clsx(
-          'inline-flex items-center gap-1.5 font-semibold tracking-tight',
-          layout === 'column'
-            ? 'text-sm text-(--text-primary) md:text-[11px] md:tracking-wide md:text-(--text-secondary) md:uppercase'
-            : 'text-[13px] text-(--text-primary) md:text-xs',
-        )}
-      >
+    <section className="flex min-h-0 min-w-0 flex-1 flex-col gap-2" aria-label="Certificado de nacimiento">
+      <h2 className="inline-flex items-center gap-1.5 text-[13px] font-semibold tracking-tight text-(--text-primary) md:text-[14px]">
         <FiFileText
           className={clsx(
             'shrink-0',
@@ -49,21 +44,18 @@ export function OntBirthCertificateEmbedded({
       </h2>
 
       {shouldShowError ? (
-        <FtthDataIssueNotice
-          presentation="inline"
-          issue={issue === 'unexpected' ? 'unexpected' : 'error'}
-          context="el certificado de nacimiento"
-          className="text-left text-xs"
-        />
-      ) : shouldShowWarning || !shouldShowData || !certificate ? (
-        <FtthDataIssueNotice
-          presentation="inline"
-          issue="no-data"
-          context="el certificado de nacimiento"
-          className="text-left text-xs"
-        />
-      ) : (
+        <div className="flex min-h-0 flex-1 items-center justify-center px-2 py-6">
+          <FtthDataIssueNotice
+            presentation="inline"
+            issue={issue === 'unexpected' ? 'unexpected' : 'error'}
+            context="el certificado de nacimiento"
+            className="text-left text-xs"
+          />
+        </div>
+      ) : shouldShowData && certificate ? (
         <BirthCertificateContent certificate={certificate} layout={layout} />
+      ) : (
+        <OntCardEmptyBody className="py-6" />
       )}
     </section>
   )
@@ -211,6 +203,25 @@ function BirthCertificateSkeleton({ layout }: { layout: 'default' | 'column' }) 
       <span className="sr-only">Cargando certificado de nacimiento</span>
     </section>
   )
+}
+
+function certificateHasAnyValue(
+  certificate: Pick<
+    OntBirthCertificateItem,
+    'fechaHora' | 'date' | 'rx' | 'tx' | 'cdo' | 'puertoInstalado' | 'workOrder' | 'caseNumber'
+  > | null,
+): boolean {
+  if (!certificate) return false
+  return hasAnyOntValue([
+    certificate.fechaHora,
+    certificate.date,
+    certificate.rx,
+    certificate.tx,
+    certificate.cdo,
+    certificate.puertoInstalado,
+    certificate.workOrder,
+    certificate.caseNumber,
+  ])
 }
 
 function displayValue(value: string): string {

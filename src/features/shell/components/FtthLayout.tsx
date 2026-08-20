@@ -23,7 +23,7 @@ export function FtthLayout() {
   return (
     <main className="h-dvh overflow-hidden bg-(--background) text-(--text-primary) transition-colors">
       <FtthTopBar />
-      <div className="ftth-shell-scroll mt-[70px] flex h-[calc(100dvh-70px)] min-h-0 flex-col overflow-x-hidden overflow-y-auto md:mt-[58px] md:h-[calc(100dvh-58px)]">
+      <div className="ftth-shell-scroll mt-[70px] flex h-[calc(100dvh-70px)] min-h-0 flex-col overflow-x-hidden overflow-y-auto md:mt-[64px] md:h-[calc(100dvh-64px)]">
         <Sidebar userInfo={user ?? undefined} />
         <div className="flex w-full flex-1 flex-col">
           <Outlet />

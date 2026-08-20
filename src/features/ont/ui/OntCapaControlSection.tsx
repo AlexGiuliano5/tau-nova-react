@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiCheck, FiX } from 'react-icons/fi'
+import { FiCheck, FiClock, FiGlobe, FiRadio, FiX } from 'react-icons/fi'
+import { IoGitNetworkOutline } from 'react-icons/io5'
 
 import {
   fetchOntCapaControl,
   type BffOntCapaControlData,
 } from '@/features/ont/api/capa-control'
 import { resolveCapaControlPortalPresentation } from '@/features/ont/lib/capa-control-portal'
+import { isOntMissingValue } from '@/features/ont/lib/missing-value'
 import { resolveCapaControlSerialNumber } from '@/features/ont/lib/ont-serial'
+import { OntCardEmptyBody, OntCardTitle } from '@/features/ont/ui/OntCardChrome'
 import {
+  capaControlCardShellClassName,
   OntCapaControlGroupedMetricCard,
   type CapaControlStatItem,
 } from '@/features/ont/ui/OntCapaControlGroupedMetricCard'
@@ -62,6 +66,7 @@ export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
     [
       {
         label: 'Access',
+        icon: IoGitNetworkOutline,
         value: (
           <span className="block wrap-break-word font-mono text-[10px] md:text-[10px] lg:text-[11px]" title={access}>
             {access}
@@ -70,6 +75,7 @@ export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
       },
       {
         label: 'IP',
+        icon: FiGlobe,
         value: (
           <span className="block wrap-break-word font-mono" title={ip}>
             {ip}
@@ -80,11 +86,13 @@ export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
     [
       {
         label: 'Portal',
+        icon: FiRadio,
         value: <PortalIcon tone={portalPresentation.tone} title={portalPresentation.description} />,
         valueClassName: 'text-base',
       },
       {
         label: 'Levantó por última vez',
+        icon: FiClock,
         value: (
           <span className="block wrap-break-word tabular-nums text-[10px] md:text-[10px] lg:text-[11px]" title={startTime}>
             {startTime}
@@ -94,20 +102,32 @@ export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
     ],
   ]
 
+  const isEmpty =
+    !loading &&
+    allOtherEmpty &&
+    portalPresentation.tone === 'neutral' &&
+    isOntMissingValue(portalPresentation.displayCode)
+
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] font-semibold tracking-wide text-(--text-secondary) uppercase">
+      <OntCardTitle icon={IoGitNetworkOutline} as="h2">
         Capa de control
-      </p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {pairs.map((stats) => (
-          <OntCapaControlGroupedMetricCard
-            key={stats.map((s) => s.label).join('-')}
-            stats={stats}
-            loading={loading}
-          />
-        ))}
-      </div>
+      </OntCardTitle>
+      {isEmpty ? (
+        <div className={`${capaControlCardShellClassName} min-h-[6.5rem]`}>
+          <OntCardEmptyBody className="py-6" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {pairs.map((stats) => (
+            <OntCapaControlGroupedMetricCard
+              key={stats.map((s) => s.label).join('-')}
+              stats={stats}
+              loading={loading}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

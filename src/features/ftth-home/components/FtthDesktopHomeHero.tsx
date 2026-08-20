@@ -160,7 +160,7 @@ export function FtthDesktopHomeHero({
                       value={value}
                       autoFocus
                       autoComplete="off"
-                      placeholder="OLT · ONT — ej: 48575443574660AF"
+                      placeholder="OLT · ONT"
                       enterKeyHint="search"
                       aria-invalid={Boolean(error)}
                       aria-describedby={error ? 'desktop-home-network-element-error' : undefined}

@@ -71,8 +71,8 @@ export function BreadcrumbPlacaPuertoEstado({
   }
 
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-black/65 dark:text-white/70">
-      <span className="text-black/40 dark:text-white/45">·</span>
+    <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[#6b7280] dark:text-white/55">
+      <span className="text-[#6b7280]/50 dark:text-white/30">·</span>
       Estado placa/puerto:{' '}
       <strong className={`font-semibold ${tone.text}`}>{tone.label}</strong>
     </span>

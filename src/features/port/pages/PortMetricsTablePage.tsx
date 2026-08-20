@@ -40,7 +40,7 @@ export function PortMetricsTablePage() {
             { label: 'OLT' },
             { label: oltTitle, href: buildOltHref(oltTitle) },
             {
-              label: `Placa ${parsed.placa} / Puerto ${parsed.puerto}`,
+              label: `Puerto ${parsed.placa}/${parsed.puerto}`,
               href: backHref,
             },
             { label: 'Tabla' },

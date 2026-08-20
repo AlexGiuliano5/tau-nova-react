@@ -52,7 +52,7 @@ function OntDetailLayoutBody({ ont }: { ont: string }) {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <RecentNetworkElementSearchRecorder value={decodedOnt} />
-      <OntDetailBreadcrumb ont={ont} showLinkIndicator />
+      <OntDetailBreadcrumb ont={ont} showLinkIndicator desktopBottomRule={false} />
       <OntDetailTabs ont={ont} />
       <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         {mountedTabs.info ? (

@@ -23,7 +23,11 @@ function SparklineShell({ children }: { children: ReactNode }) {
 }
 
 function BipSparklineChart({ rows }: { rows: OntBipSparklinePoint[] }) {
-  const path = useMemo(() => buildSparklinePath(rows, 56, 56, 4), [rows])
+  const isFlatZero = useMemo(
+    () => rows.length > 0 && rows.every((row) => row.value === 0),
+    [rows],
+  )
+  const path = useMemo(() => buildSparklinePath(rows, 56, 56, 8), [rows])
   return (
     <div
       className="size-14 min-h-14 min-w-14 shrink-0 overflow-hidden rounded-md border border-black/10 bg-white/55 dark:border-white/12 dark:bg-white/5"
@@ -31,14 +35,26 @@ function BipSparklineChart({ rows }: { rows: OntBipSparklinePoint[] }) {
       aria-label="Histórico BIP últimos 3 días"
     >
       <svg viewBox="0 0 56 56" className="size-full" aria-hidden>
-        <path
-          d={path}
-          fill="none"
-          stroke="var(--primary-2)"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        {isFlatZero ? (
+          <line
+            x1="8"
+            y1="46"
+            x2="48"
+            y2="46"
+            stroke="var(--primary-2)"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+          />
+        ) : (
+          <path
+            d={path}
+            fill="none"
+            stroke="var(--primary-2)"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
       </svg>
     </div>
   )

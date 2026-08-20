@@ -11,10 +11,11 @@ import {
 } from '@/features/ont/lib/ont-metric-display'
 import {
   getOntMetricThresholdConfig,
-  ontMetricThresholdSwatchClass,
+  resolveOntMetricThresholdSegment,
   type OntMetricThresholdConfig,
   type OntMetricThresholdTone,
 } from '@/features/ont/lib/ont-metric-thresholds'
+import { getOntMetricHeaderIcon } from '@/features/ont/lib/ont-metric-header-icon'
 import { resolveOntBipMetricGraphId } from '@/features/ont/lib/resolve-ont-bip-metric-graph-id'
 import { OntBipMetricSparkline } from '@/features/ont/ui/OntBipMetricSparkline'
 
@@ -26,13 +27,6 @@ interface Props {
   oltId?: string
   /** Spinner sólo sobre min / prom / max (ej. esperando `aggobyont`). */
   aggregateLoading?: boolean
-}
-
-interface ThresholdSegment {
-  label: string
-  start: number
-  end: number
-  tone: OntMetricThresholdTone
 }
 
 type ThresholdBarConfig = OntMetricThresholdConfig
@@ -54,25 +48,51 @@ function getMetricColorClass(color: OntMetricCardModel['color']): string {
   }
 }
 
-function getMetricAccentClassName(color: OntMetricCardModel['color']): string {
-  const darkNeutralAccent = 'dark:lg:border-white/10 dark:lg:bg-(--card)'
-
+function getMetricBorderClassName(color: OntMetricCardModel['color']): string {
   switch (color) {
     case 'card-red':
-      return `lg:border-(--card-red)/45 lg:bg-(--card-red)/10 ${darkNeutralAccent}`
+      return 'border-(--card-red)/60 dark:border-(--card-red)/55'
     case 'card-yellow':
-      return `lg:border-(--card-yellow)/55 lg:bg-(--card-yellow)/12 ${darkNeutralAccent}`
+      return 'border-(--card-yellow)/65 dark:border-(--card-yellow)/50'
     case 'card-orange':
-      return `lg:border-(--card-orange)/50 lg:bg-(--card-orange)/12 ${darkNeutralAccent}`
+      return 'border-(--card-orange)/60 dark:border-(--card-orange)/55'
     case 'card-green':
-      return `lg:border-(--card-green)/45 lg:bg-(--card-green)/10 ${darkNeutralAccent}`
+      return 'border-(--card-green)/60 dark:border-(--card-green)/55'
     default:
-      return `lg:border-(--secondary)/30 lg:bg-(--violeta-iconos-teco)/45 ${darkNeutralAccent}`
+      return 'border-[#d9e0e8] dark:border-white/10'
   }
 }
 
-function getThresholdToneClassName(tone: ThresholdSegment['tone']): string {
-  return ontMetricThresholdSwatchClass(tone)
+function getMetricValueClassName(color: OntMetricCardModel['color']): string {
+  switch (color) {
+    case 'card-red':
+      return 'text-[#cc2e26] dark:text-(--card-red)'
+    case 'card-yellow':
+      return 'text-[#9a7400] dark:text-(--card-yellow)'
+    case 'card-orange':
+      return 'text-[#c45c12] dark:text-(--card-orange)'
+    case 'card-green':
+      return 'text-[#1f8a3b] dark:text-(--card-green)'
+    default:
+      return 'text-(--text-primary)'
+  }
+}
+
+function getThresholdBarToneClassName(tone: OntMetricThresholdTone): string {
+  switch (tone) {
+    case 'red':
+      return 'bg-[color-mix(in_srgb,var(--card-red)_78%,white)] dark:bg-(--card-red)/70'
+    case 'orange':
+      return 'bg-[color-mix(in_srgb,var(--card-orange)_80%,white)] dark:bg-(--card-orange)/70'
+    case 'yellow':
+      return 'bg-[color-mix(in_srgb,var(--card-yellow)_82%,white)] dark:bg-(--card-yellow)/70'
+    case 'green':
+      return 'bg-[color-mix(in_srgb,var(--card-green)_78%,white)] dark:bg-(--card-green)/70'
+    case 'blue':
+      return 'bg-[color-mix(in_srgb,var(--primary-2)_74%,white)] dark:bg-(--primary-2)/65'
+    default:
+      return 'bg-(--gray-01) dark:bg-white/15'
+  }
 }
 
 function parseMetricNumber(value: string): number | null {
@@ -84,45 +104,57 @@ function parseMetricNumber(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
-function getThresholdBarConfig(title: string): ThresholdBarConfig | null {
-  return getOntMetricThresholdConfig(title)
-}
-
-function getThresholdTickValues(config: ThresholdBarConfig): number[] {
-  if (config.tickValues && config.tickValues.length > 0) {
-    return config.tickValues
-  }
-  const allValues = [config.min, ...config.segments.map((segment) => segment.end)]
-  const uniqueValues = Array.from(new Set(allValues.map((value) => value.toFixed(2))))
-  return uniqueValues.map((value) => Number.parseFloat(value))
-}
-
 function getThresholdPositionPercent(value: number, config: ThresholdBarConfig): number {
   return Math.min(100, Math.max(0, ((value - config.min) / (config.max - config.min)) * 100))
 }
 
-function getThresholdTickMarkStyle(percent: number): CSSProperties {
+function getMarkerStyle(percent: number): CSSProperties {
   if (percent <= 1) {
-    return { left: '0%', transform: 'none' }
+    return { left: 0 }
   }
   if (percent >= 99) {
-    return { left: '100%', transform: 'translateX(-100%)' }
+    return { left: 'auto', right: 0 }
   }
   return { left: `${percent}%`, transform: 'translateX(-50%)' }
 }
 
-function getThresholdTickValueStyle(percent: number): CSSProperties {
-  if (percent <= 2) {
-    return { left: '0%', transform: 'translateX(0)', textAlign: 'left' }
-  }
-  if (percent >= 98) {
-    return { left: '100%', transform: 'translateX(-100%)', textAlign: 'right' }
-  }
-  return { left: `${percent}%`, transform: 'translateX(-50%)', textAlign: 'center' }
-}
-
 function formatThresholdTickValue(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toString()
+}
+
+function getThresholdCaptionItems(
+  config: ThresholdBarConfig,
+): Array<{ percent: number; text: string; align: 'left' | 'center' | 'right' }> {
+  const items: Array<{ percent: number; text: string; align: 'left' | 'center' | 'right' }> = []
+  const first = config.segments[0]
+  const last = config.segments[config.segments.length - 1]
+  if (first) {
+    items.push({
+      percent: 0,
+      text: `${formatThresholdTickValue(first.start)} ${first.label.toLowerCase()}`,
+      align: 'left',
+    })
+  }
+
+  const optimo = config.segments.find((segment) => segment.label.toLowerCase() === 'óptimo')
+  if (optimo && optimo !== first) {
+    items.push({
+      percent: getThresholdPositionPercent(optimo.start, config),
+      text: `${formatThresholdTickValue(optimo.start)} ${optimo.label.toLowerCase()}`,
+      align: 'center',
+    })
+  }
+
+  if (last && last !== first) {
+    const isOptimo = last.label.toLowerCase() === 'óptimo'
+    items.push({
+      percent: 100,
+      text: isOptimo ? last.label.toLowerCase() : `${formatThresholdTickValue(last.end)} ${last.label.toLowerCase()}`,
+      align: 'right',
+    })
+  }
+
+  return items
 }
 
 function getRecalculationDirection(
@@ -154,75 +186,27 @@ function getRecalculationDirection(
   return 'up'
 }
 
-function getToneBadgeClassName(tone: ThresholdSegment['tone']): string {
+function getToneBadgeClassName(tone: OntMetricThresholdTone): string {
   switch (tone) {
     case 'red':
-      return 'border border-(--card-red)/45 bg-(--card-red)/12 text-(--card-red) dark:border-(--card-red)/50 dark:bg-(--card-red)/20'
+      return 'bg-(--card-red)/12 text-[#cc2e26] dark:bg-(--card-red)/20 dark:text-(--card-red)'
     case 'orange':
-      return 'border border-(--card-orange)/45 bg-(--card-orange)/12 text-(--card-orange) dark:border-(--card-orange)/50 dark:bg-(--card-orange)/20'
+      return 'bg-(--card-orange)/14 text-[#c45c12] dark:bg-(--card-orange)/20 dark:text-(--card-orange)'
     case 'yellow':
-      return 'border border-(--card-yellow)/55 bg-(--card-yellow)/12 text-(--text-primary) dark:border-(--card-yellow)/60 dark:bg-(--card-yellow)/20'
+      return 'bg-(--card-yellow)/18 text-[#9a7400] dark:bg-(--card-yellow)/20 dark:text-(--card-yellow)'
     case 'green':
-      return 'border border-(--card-green)/45 bg-(--card-green)/12 text-(--state-01) dark:border-(--card-green)/55 dark:bg-(--card-green)/20 dark:text-(--card-green)'
+      return 'bg-(--card-green)/14 text-[#1f8a3b] dark:bg-(--card-green)/20 dark:text-(--card-green)'
     case 'blue':
-      return 'border border-(--primary-2)/35 bg-(--primary-2)/12 text-(--primary-2) dark:border-(--secondary)/45 dark:bg-(--secondary-3)/35 dark:text-(--secondary)'
+      return 'bg-(--primary-2)/12 text-(--primary-2) dark:bg-(--secondary)/20 dark:text-(--secondary)'
     default:
-      return 'border border-(--secondary)/35 bg-(--secondary)/14 text-(--text-secondary) dark:border-(--secondary)/45 dark:bg-(--secondary-3)/35'
+      return 'bg-black/5 text-(--text-secondary) dark:bg-white/10'
   }
-}
-
-function getThresholdToneForValue(
-  value: number,
-  thresholdBarConfig: ThresholdBarConfig,
-): ThresholdSegment['tone'] | null {
-  const lastSegmentIndex = thresholdBarConfig.segments.length - 1
-  const matchingSegment = thresholdBarConfig.segments.find((segment, index) => {
-    if (index === lastSegmentIndex) {
-      return value >= segment.start && value <= segment.end
-    }
-    return value >= segment.start && value < segment.end
-  })
-  return matchingSegment?.tone ?? null
-}
-
-function getRecalculationBadgeClassName(
-  thresholdBarConfig: ThresholdBarConfig | null,
-  parsedActualValue: number | null,
-): string {
-  if (thresholdBarConfig && parsedActualValue !== null) {
-    const tone = getThresholdToneForValue(parsedActualValue, thresholdBarConfig)
-    return getToneBadgeClassName(tone ?? 'neutral')
-  }
-
-  return 'border border-(--secondary)/35 bg-(--violeta-iconos-teco)/70 text-(--secondary-3) dark:border-(--secondary)/45 dark:bg-(--secondary-3)/40 dark:text-(--secondary)'
 }
 
 function toNonEmptyLabel(value: string | undefined): string {
   const normalized = value?.trim()
   return normalized && normalized.length > 0 ? normalized : 'Sin Datos'
 }
-
-function splitMetricSurveyDateTime(value?: string): { fecha: string; hora: string } {
-  const normalized = value?.trim() ?? ''
-  if (!normalized) {
-    return { fecha: '', hora: '' }
-  }
-
-  const spaceIndex = normalized.indexOf(' ')
-  if (spaceIndex === -1) {
-    return { fecha: normalized, hora: '' }
-  }
-
-  return {
-    fecha: normalized.slice(0, spaceIndex),
-    hora: normalized.slice(spaceIndex + 1).trim(),
-  }
-}
-
-const DESKTOP_THRESHOLD_ZONE_HEIGHT_CLASS = 'lg:h-[84px]'
-
-const surveyHoraChipClassName =
-  'pointer-events-auto absolute right-0 inline-flex items-center rounded-md border border-black/10 bg-black/5 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums leading-none text-(--text-primary) dark:border-white/15 dark:bg-white/10 md:text-[10px]'
 
 function OntAggregateStatsSpinner() {
   return (
@@ -255,16 +239,15 @@ export function OntMetricCard({
   const eventTimeLabel = formatOntMetricCardDateTime(metric.eventTime)
   const titleLabel =
     unitLabel && unitLabel !== 'Sin Datos' ? `${metric.title} (${unitLabel})` : metric.title
-  const surveyHora = splitMetricSurveyDateTime(metric.time).hora
-  const showSurveyHora = !metric.recalculated && !loading && Boolean(surveyHora)
-  const thresholdBarConfig = getThresholdBarConfig(metric.title)
+  const thresholdBarConfig = getOntMetricThresholdConfig(metric.title)
+  const isBipMetric = Boolean(resolveOntBipMetricGraphId(metric.title))
   const parsedActualValue = parseMetricNumber(metric.actual)
-  const thresholdTickValues = thresholdBarConfig ? getThresholdTickValues(thresholdBarConfig) : []
+  const activeSegment =
+    thresholdBarConfig && parsedActualValue !== null
+      ? resolveOntMetricThresholdSegment(parsedActualValue, thresholdBarConfig)
+      : null
   const recalculationDirection = getRecalculationDirection(metric.previousActual, metric.actual)
-  const recalculationBadgeClassName = getRecalculationBadgeClassName(
-    thresholdBarConfig,
-    parsedActualValue,
-  )
+  const HeaderIcon = getOntMetricHeaderIcon(metric.title)
   const bipHistoricGraphId = resolveOntBipMetricGraphId(metric.title)
   const showBipSparkline = Boolean(ontId && oltId && bipHistoricGraphId)
 
@@ -289,6 +272,7 @@ export function OntMetricCard({
     thresholdBarConfig && parsedActualValue !== null
       ? getThresholdPositionPercent(parsedActualValue, thresholdBarConfig)
       : null
+  const captionItems = thresholdBarConfig ? getThresholdCaptionItems(thresholdBarConfig) : []
 
   const comparisonTooltip = hasComparisonTooltipData ? (
     <div className="pointer-events-none absolute left-1/2 top-[calc(100%+0.35rem)] z-30 hidden w-[320px] -translate-x-1/2 rounded-lg border border-black/10 bg-white/95 p-2 text-[11px] text-(--text-primary) shadow-[0_8px_20px_rgb(0_0_0/0.2)] backdrop-blur-[1px] md:group-hover:block md:group-focus-within:block dark:border-white/15 dark:bg-(--card)">
@@ -323,241 +307,192 @@ export function OntMetricCard({
     <div
       key={didValueChangeOnRecalc ? `card-pulse-${livePulseKey}` : undefined}
       className={clsx(
-        'relative flex min-h-[100px] w-full flex-col items-center justify-center gap-1 rounded-lg border border-[#d9e0e8] bg-white/65 p-1.5 shadow-[0_1px_3px_rgb(15_23_42/0.05)] dark:border-white/10 dark:bg-(--card)',
-        'lg:h-[210px] lg:min-h-[210px] lg:flex-col lg:items-stretch lg:gap-1.5 lg:rounded-xl lg:border lg:px-2.5 lg:py-2 lg:shadow-[0_6px_16px_rgb(15_23_42/0.07)]',
-        getMetricAccentClassName(metric.color),
+        'relative flex min-h-[100px] w-full flex-col gap-1 rounded-lg border bg-(--card) p-2 shadow-[0_1px_3px_rgb(15_23_42/0.05)] dark:bg-(--card)',
+        'lg:min-h-[168px] lg:rounded-xl lg:px-2.5 lg:py-2 lg:shadow-[0_4px_12px_rgb(15_23_42/0.06)]',
+        getMetricBorderClassName(metric.color),
         didValueChangeOnRecalc && 'ont-metric-card-live-pulse',
       )}
     >
-      {showRecalculatedBadge ? (
-        <div className="group absolute left-1.5 top-1 z-20 md:left-2 md:top-2 lg:left-auto lg:right-2 lg:top-2.5">
-          <span
-            className={clsx(
-              'inline-flex h-5 w-5 items-center justify-center rounded-full p-0',
-              recalculationBadgeClassName,
-            )}
-            aria-label={
-              recalculationDirection === 'down'
-                ? 'Métrica recalculada con valor hacia abajo'
-                : recalculationDirection === 'equal'
-                  ? 'Métrica recalculada sin cambios'
-                  : 'Métrica recalculada con valor hacia arriba'
-            }
-          >
-            {recalculationDirection === 'down' ? (
-              <IoTrendingDown className="h-3 w-3 shrink-0" />
-            ) : recalculationDirection === 'equal' ? (
-              <IoRemove className="h-3 w-3 shrink-0" />
-            ) : (
-              <IoTrendingUp className="h-3 w-3 shrink-0" />
-            )}
-          </span>
-          {comparisonTooltip}
-        </div>
-      ) : null}
-
-      <div className="flex w-full min-h-0 flex-1 flex-col gap-2 max-lg:w-full max-lg:flex-none lg:min-h-0 lg:gap-1">
-        <div
-          className={clsx(
-            'pointer-events-none relative flex w-full shrink-0 items-center justify-center px-1 lg:min-h-8',
-            showSurveyHora && 'px-[4.75rem]',
-          )}
-        >
-          <h2 className="pointer-events-auto text-center text-[10px] font-semibold leading-tight text-(--text-secondary) md:text-[9px] lg:text-[10px] lg:font-semibold lg:tracking-[0.01em]">
-            {titleLabel}
-          </h2>
-          {showSurveyHora ? <span className={surveyHoraChipClassName}>{surveyHora}</span> : null}
-        </div>
-        <div
-          className={clsx(
-            'flex min-h-0 w-full flex-1 flex-col items-center justify-center lg:items-stretch',
-            thresholdBarConfig ? 'lg:justify-start' : 'lg:justify-center',
-          )}
-        >
-          {hasData ? (
-            <>
-              <div className="mx-auto flex w-full max-w-[220px] shrink-0 flex-col items-center justify-center min-h-0 lg:max-w-none lg:min-h-[2.25rem]">
-                {showMetricGuides && !loading ? (
-                  <div
-                    className={clsx(
-                      'grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-3',
-                      thresholdBarConfig && 'lg:flex lg:items-center lg:justify-center',
-                    )}
-                  >
-                    <span
-                      className={clsx(
-                        'h-1.5 min-h-[6px] w-full rounded-full lg:h-2',
-                        thresholdBarConfig && 'lg:hidden',
-                        getMetricColorClass(metric.color),
-                      )}
-                    />
-                    <div className="group relative flex min-h-[1.25em] shrink-0 flex-col items-center justify-center justify-self-center">
-                      <span className="flex items-center justify-center text-center text-[1.6rem] font-semibold tabular-nums leading-none md:text-[1.35rem] lg:text-[1.95rem]">
-                        {currentActualLabel}
-                      </span>
-                      {!showRecalculatedBadge ? comparisonTooltip : null}
-                    </div>
-                    <span
-                      className={clsx(
-                        'h-1.5 min-h-[6px] w-full rounded-full lg:h-2',
-                        thresholdBarConfig && 'lg:hidden',
-                        getMetricColorClass(metric.color),
-                      )}
-                    />
-                  </div>
-                ) : loading ? (
-                  <div
-                    className="flex min-h-9 min-w-9 shrink-0 items-center justify-center justify-self-center"
-                    role="status"
-                    aria-busy="true"
-                    aria-live="polite"
-                  >
-                    <span className="sr-only">Cargando {metric.title}</span>
-                    <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-(--text-secondary) border-t-transparent" />
-                  </div>
+      <div className="flex w-full items-start justify-between gap-2">
+        <h2 className="inline-flex min-w-0 items-center gap-1.5 text-left text-[13px] font-medium leading-tight text-(--text-primary)">
+          <HeaderIcon className="size-[18px] shrink-0 text-(--text-secondary)" aria-hidden />
+          <span className="min-w-0 truncate">{titleLabel}</span>
+        </h2>
+        <div className="flex shrink-0 items-center gap-1">
+          {showRecalculatedBadge ? (
+            <div className="group relative">
+              <span
+                className={clsx(
+                  'inline-flex h-5 w-5 items-center justify-center rounded-full',
+                  activeSegment
+                    ? getToneBadgeClassName(activeSegment.tone)
+                    : 'bg-black/5 text-(--text-secondary) dark:bg-white/10',
+                )}
+                aria-label={
+                  recalculationDirection === 'down'
+                    ? 'Métrica recalculada con valor hacia abajo'
+                    : recalculationDirection === 'equal'
+                      ? 'Métrica recalculada sin cambios'
+                      : 'Métrica recalculada con valor hacia arriba'
+                }
+              >
+                {recalculationDirection === 'down' ? (
+                  <IoTrendingDown className="h-3 w-3 shrink-0" />
+                ) : recalculationDirection === 'equal' ? (
+                  <IoRemove className="h-3 w-3 shrink-0" />
                 ) : (
-                  <div className="group relative flex flex-col items-center">
-                    <span className="inline-flex items-center justify-center text-[1.6rem] font-semibold leading-none md:text-[1.35rem] lg:text-[1.95rem]">
+                  <IoTrendingUp className="h-3 w-3 shrink-0" />
+                )}
+              </span>
+              {comparisonTooltip}
+            </div>
+          ) : null}
+          {activeSegment && !loading ? (
+            <span
+              className={clsx(
+                'inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold leading-none',
+                getToneBadgeClassName(activeSegment.tone),
+              )}
+            >
+              {activeSegment.label}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center lg:justify-start">
+        {hasData ? (
+          <>
+            <div className="flex w-full flex-col items-center justify-center lg:min-h-[2.5rem]">
+              {showMetricGuides && !loading ? (
+                <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 lg:flex lg:justify-center">
+                  <span
+                    className={clsx(
+                      'h-1.5 min-h-[6px] w-full rounded-full lg:hidden',
+                      getMetricColorClass(metric.color),
+                    )}
+                  />
+                  <div className="group relative flex shrink-0 flex-col items-center justify-center">
+                    <span
+                      className={clsx(
+                        'flex items-center justify-center text-center text-[1.6rem] font-semibold tabular-nums leading-none md:text-[1.45rem] lg:text-[1.85rem]',
+                        getMetricValueClassName(metric.color),
+                      )}
+                    >
                       {currentActualLabel}
                     </span>
                     {!showRecalculatedBadge ? comparisonTooltip : null}
                   </div>
-                )}
-              </div>
-
-              {thresholdBarConfig ? (
-                <div
-                  className={clsx(
-                    'hidden w-full shrink-0 lg:flex lg:flex-col lg:items-stretch lg:justify-start lg:overflow-visible lg:pt-3',
-                    DESKTOP_THRESHOLD_ZONE_HEIGHT_CLASS,
-                  )}
-                >
-                  {!loading && thresholdBarConfig && actualMarkerLeftPercent !== null ? (
-                    <>
-                      <div className="relative shrink-0">
-                        <div className="relative min-h-[20px] lg:min-h-[26px]">
-                          <div
-                            className="pointer-events-none absolute bottom-0 z-10 flex flex-col items-center"
-                            style={{
-                              left: `${actualMarkerLeftPercent}%`,
-                              transform: 'translateX(-50%)',
-                            }}
-                          >
-                            <span className="rounded bg-(--primary-2) px-1 py-0.5 text-[8px] font-semibold tracking-wide text-white shadow-[0_1px_2px_rgb(0_0_0/0.2)] dark:bg-(--secondary-3)">
-                              ACTUAL
-                            </span>
-                            <span
-                              className="h-3.5 w-px shrink-0 bg-(--primary-2) dark:bg-(--secondary-3)"
-                              aria-hidden="true"
-                            />
-                          </div>
-                        </div>
-                        <div className="relative z-0 flex h-1.5 overflow-hidden rounded-full border border-(--outline)/70 bg-(--background)">
-                          {thresholdBarConfig.segments.map((segment) => {
-                            const width =
-                              ((segment.end - segment.start) /
-                                (thresholdBarConfig.max - thresholdBarConfig.min)) *
-                              100
-                            return (
-                              <span
-                                key={`${segment.label}-${segment.start}-${segment.end}`}
-                                className={clsx(
-                                  'block h-full',
-                                  getThresholdToneClassName(segment.tone),
-                                )}
-                                style={{ width: `${width}%` }}
-                              />
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      <div className="mt-1 flex shrink-0 overflow-hidden text-[8px] font-medium leading-tight text-(--text-secondary) lg:mt-0.5 lg:text-[8px] lg:leading-tight">
-                        {thresholdBarConfig.segments.map((segment) => {
-                          const width =
-                            ((segment.end - segment.start) /
-                              (thresholdBarConfig.max - thresholdBarConfig.min)) *
-                            100
-                          return (
-                            <span
-                              key={`label-${segment.label}-${segment.start}`}
-                              className="block truncate px-0.5 text-center whitespace-nowrap"
-                              style={{ width: `${width}%` }}
-                            >
-                              {segment.label}
-                            </span>
-                          )
-                        })}
-                      </div>
-                      <div className="mt-0.5 shrink-0 pb-1 lg:mt-0.5 lg:pb-0">
-                        <div className="relative h-1.5 lg:h-1">
-                          {thresholdTickValues.map((value) => {
-                            const tickPercent = getThresholdPositionPercent(
-                              value,
-                              thresholdBarConfig,
-                            )
-                            return (
-                              <span
-                                key={`tick-mark-${value}`}
-                                className="absolute top-0 block h-1.5 w-px bg-(--outline) lg:h-1"
-                                style={getThresholdTickMarkStyle(tickPercent)}
-                                aria-hidden="true"
-                              />
-                            )
-                          })}
-                        </div>
-                        <div className="relative mt-0.5 min-h-[0.75rem] text-[9px] font-semibold tabular-nums leading-none text-(--text-primary) lg:mt-0.5 lg:min-h-[12px] lg:text-[9px]">
-                          {thresholdTickValues.map((value) => {
-                            const tickPercent = getThresholdPositionPercent(
-                              value,
-                              thresholdBarConfig,
-                            )
-                            return (
-                              <span
-                                key={`tick-value-${value}`}
-                                className="absolute top-0 whitespace-nowrap"
-                                style={getThresholdTickValueStyle(tickPercent)}
-                              >
-                                {formatThresholdTickValue(value)}
-                              </span>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <div className="flex h-7 shrink-0 items-center justify-center md:hidden">
-                <button
-                  type="button"
-                  aria-expanded={isExpanded}
-                  aria-label={`Mostrar detalle de ${metric.title}`}
-                  className="inline-flex items-center justify-center rounded-md p-1 text-(--text-secondary)"
-                  onClick={() => setIsExpanded((prev) => !prev)}
-                >
-                  <IoChevronDown
+                  <span
                     className={clsx(
-                      'transition-transform duration-200',
-                      isExpanded && 'rotate-180',
+                      'h-1.5 min-h-[6px] w-full rounded-full lg:hidden',
+                      getMetricColorClass(metric.color),
                     )}
-                    size={20}
                   />
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex h-18 w-full items-center justify-center lg:min-h-0">
-              <div className="group relative">
-                <span className="inline-flex w-full items-center justify-center text-center text-[1.6rem] font-semibold leading-none md:text-[1.35rem] lg:text-[2.05rem]">
-                  {currentActualLabel}
-                </span>
-                {comparisonTooltip}
-              </div>
+                </div>
+              ) : loading ? (
+                <div
+                  className="flex min-h-9 min-w-9 items-center justify-center"
+                  role="status"
+                  aria-busy="true"
+                  aria-live="polite"
+                >
+                  <span className="sr-only">Cargando {metric.title}</span>
+                  <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-(--text-secondary) border-t-transparent" />
+                </div>
+              ) : (
+                <div className="group relative flex flex-col items-center">
+                  <span
+                    className={clsx(
+                      'inline-flex items-center justify-center text-[1.6rem] font-semibold leading-none md:text-[1.45rem] lg:text-[1.85rem]',
+                      getMetricValueClassName(metric.color),
+                    )}
+                  >
+                    {currentActualLabel}
+                  </span>
+                  {!showRecalculatedBadge ? comparisonTooltip : null}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {thresholdBarConfig && !loading && actualMarkerLeftPercent !== null ? (
+              <div className="mt-3 hidden w-full lg:block">
+                <div className="relative h-2 overflow-hidden rounded-full bg-(--background)">
+                  <div className="flex h-full w-full">
+                    {thresholdBarConfig.segments.map((segment) => {
+                      const width =
+                        ((segment.end - segment.start) /
+                          (thresholdBarConfig.max - thresholdBarConfig.min)) *
+                        100
+                      return (
+                        <span
+                          key={`${segment.label}-${segment.start}-${segment.end}`}
+                          className={clsx('block h-full', getThresholdBarToneClassName(segment.tone))}
+                          style={{ width: `${width}%` }}
+                        />
+                      )
+                    })}
+                  </div>
+                  <span
+                    className="absolute inset-y-0 z-10 w-0.5 bg-(--text-primary)"
+                    style={getMarkerStyle(actualMarkerLeftPercent)}
+                    aria-hidden
+                  />
+                </div>
+                <div className="relative mt-1 min-h-[1rem] text-[8px] font-medium leading-tight text-(--text-secondary)">
+                  {captionItems.map((item) => (
+                    <span
+                      key={`${item.text}-${item.percent}`}
+                      className="absolute top-0 whitespace-nowrap"
+                      style={
+                        item.align === 'left'
+                          ? { left: 0 }
+                          : item.align === 'right'
+                            ? { right: 0 }
+                            : { left: `${item.percent}%`, transform: 'translateX(-50%)' }
+                      }
+                    >
+                      {item.text}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {!thresholdBarConfig && !isBipMetric && !loading ? (
+              <p className="mt-3 hidden text-center text-[10px] text-(--text-secondary)/80 lg:block">
+                Sin umbral configurado
+              </p>
+            ) : null}
+
+            <div className="flex h-7 shrink-0 items-center justify-center md:hidden">
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                aria-label={`Mostrar detalle de ${metric.title}`}
+                className="inline-flex items-center justify-center rounded-md p-1 text-(--text-secondary)"
+                onClick={() => setIsExpanded((prev) => !prev)}
+              >
+                <IoChevronDown
+                  className={clsx(
+                    'transition-transform duration-200',
+                    isExpanded && 'rotate-180',
+                  )}
+                  size={20}
+                />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex w-full items-center justify-center py-3">
+            <div className="group relative">
+              <span className="inline-flex w-full items-center justify-center text-center text-[1.6rem] font-semibold leading-none md:text-[1.45rem] lg:text-[1.85rem]">
+                {currentActualLabel}
+              </span>
+              {comparisonTooltip}
+            </div>
+          </div>
+        )}
       </div>
 
       {showBipSparkline && ontId && oltId && bipHistoricGraphId ? (
@@ -568,16 +503,17 @@ export function OntMetricCard({
 
       <div
         className={clsx(
-          'w-full shrink-0 pt-2 lg:flex lg:flex-col lg:shrink-0 lg:pt-0',
+          'w-full shrink-0 pt-2 lg:flex lg:flex-col lg:pt-0',
           isExpanded ? 'block' : 'hidden md:block',
         )}
       >
         <div
           className={clsx(
-            'mx-auto w-full max-w-[220px] border-t border-black/10 pt-3 lg:max-w-none lg:pt-1.5 dark:border-white/10',
-            showBipSparkline ? 'mt-0 lg:mt-1' : 'mt-4 lg:mt-3',
+            'mx-auto w-full max-w-[220px] border-t border-black/10 pt-2 lg:max-w-none lg:pt-1.5 dark:border-white/10',
+            showBipSparkline ? 'mt-0 lg:mt-1' : 'mt-2 lg:mt-2',
           )}
-        >          <div
+        >
+          <div
             role={showAggregateStatsBusy ? 'status' : undefined}
             aria-busy={showAggregateStatsBusy ? true : undefined}
             className="mx-auto grid w-full grid-cols-3 gap-2 text-center lg:gap-1.5"
@@ -596,16 +532,14 @@ export function OntMetricCard({
             ).map(({ label, value }) => (
               <div
                 key={label}
-                className="flex min-h-[44px] flex-col items-center justify-center gap-1 text-center lg:min-h-[32px] lg:gap-0.5"
+                className="flex min-h-[36px] flex-col items-center justify-center gap-0.5 text-center lg:min-h-[28px]"
               >
                 {showAggregateStatsBusy ? (
                   <OntAggregateStatsSpinner />
                 ) : (
-                  <span className="text-xs font-semibold md:text-[11px] lg:text-[11px]">
-                    {formatOntMetricCardValue(value)}
-                  </span>
+                  <span className="text-xs font-semibold md:text-[11px]">{formatOntMetricCardValue(value)}</span>
                 )}
-                <span className="text-[10px] leading-tight text-(--text-secondary) md:text-[9px] lg:text-[9px] lg:font-medium">
+                <span className="text-[10px] leading-tight text-(--text-secondary) md:text-[9px]">
                   {label}
                 </span>
               </div>

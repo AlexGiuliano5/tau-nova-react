@@ -19,7 +19,6 @@ export interface BffLastMetricByOntResponse {
 
 export interface OntClientInfo {
   nombre: string
-  numeroCliente: string
   provincia: string
   localidad: string
   direccion: string

@@ -11,7 +11,7 @@ import {
 } from '@/shared/lib/theme'
 
 const headerClassName =
-  'fixed top-0 right-0 left-0 z-50 h-[70px] w-full bg-(--primary) py-2 text-white dark:bg-(--secondary-2) md:h-[64px] md:border-b md:border-black/10 md:bg-(--background) md:py-0 md:text-(--text-primary) md:dark:border-white/10 md:dark:bg-(--background)'
+  'fixed top-0 right-0 left-0 z-50 h-[70px] w-full bg-(--primary) py-2 text-white dark:bg-(--secondary-2) md:h-[64px] md:bg-(--background) md:py-0 md:text-(--text-primary) md:dark:bg-(--background)'
 
 const desktopNavLinkClassName =
   'inline-flex h-10 items-center rounded-md px-4 text-sm leading-none font-semibold text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) dark:text-(--text-primary)/80 dark:hover:bg-white/8 dark:hover:text-(--text-primary)'

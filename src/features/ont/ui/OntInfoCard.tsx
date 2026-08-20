@@ -3,10 +3,11 @@ import { IoOpenOutline } from 'react-icons/io5'
 import { Link } from 'react-router-dom'
 
 import type { OntBirthCertificateResult } from '@/features/ont/api/birth-certificate'
+import { hasAnyOntValue } from '@/features/ont/lib/missing-value'
 import { formatOntSerial } from '@/features/ont/lib/ont-serial'
 import { formatOntStatusLabel, normalizeOntStatusKey } from '@/features/ont/lib/ont-status-labels'
 import { OntBirthCertificateEmbedded } from '@/features/ont/ui/OntBirthCertificateEmbedded'
-import { OntCardTitle } from '@/features/ont/ui/OntCardChrome'
+import { OntCardEmptyBody, OntCardTitle } from '@/features/ont/ui/OntCardChrome'
 import { OntHistoricStatusBarChart } from '@/features/ont/ui/OntHistoricStatusBarChart'
 import { infoCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
 import type { HistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
@@ -70,6 +71,19 @@ export function OntInfoCard({
   const StatusIcon = resolveStatusIcon(statusKey)
   const statusLabel = statusLoading ? 'Cargando' : formatOntStatusLabel(data.estado)
 
+  const hasInfoData = hasAnyOntValue([
+    data.ponId,
+    data.serial,
+    data.vendor,
+    data.olt,
+    data.placa,
+    data.puerto,
+    data.distancia,
+    data.ultimaVezActiva,
+    data.ultimaVezInactiva,
+    data.causaUltimaInactividad,
+  ])
+
   const oltHref =
     data.olt && data.olt !== 'Sin Datos'
       ? `/ftth/olt/${encodeURIComponent(data.olt)}`
@@ -87,7 +101,7 @@ export function OntInfoCard({
   return (
     <div className={infoCardClassName}>
       <header className="flex min-w-0 items-start justify-between gap-3">
-        <OntCardTitle icon={FiCpu} className="min-w-0 text-lg md:text-[1.05rem]">
+        <OntCardTitle icon={FiCpu} className="min-w-0">
           Información de ONT
         </OntCardTitle>
         <div className="flex min-w-0 max-w-[min(100%,18rem)] flex-col items-end gap-1.5">
@@ -122,11 +136,13 @@ export function OntInfoCard({
       <div
         className={
           showBirthCertificate
-            ? 'grid flex-1 grid-cols-1 gap-0 md:grid-cols-3 md:gap-3'
-            : 'grid flex-1 grid-cols-1 gap-0 md:grid-cols-2 md:gap-3'
+            ? 'grid min-h-0 flex-1 grid-cols-1 gap-0 md:grid-cols-3 md:gap-3'
+            : 'grid min-h-0 flex-1 grid-cols-1 gap-0 md:grid-cols-2 md:gap-3'
         }
       >
-        <section className={columnClassName} aria-label="Identificación">
+        {hasInfoData ? (
+          <>
+            <section className={columnClassName} aria-label="Identificación">
           <div className={fieldRowClassName}>
             <span className={fieldLabelClassName}>PON ID</span>
             <span className={fieldValueClassName}>{data.ponId}</span>
@@ -191,9 +207,15 @@ export function OntInfoCard({
             </span>
           </div>
         </section>
+          </>
+        ) : (
+          <div className="flex h-full min-h-0 md:col-span-2">
+            <OntCardEmptyBody />
+          </div>
+        )}
 
         {showBirthCertificate ? (
-          <section className={`${columnDividerClassName} min-w-0`} aria-label="Certificado">
+          <section className={`${columnDividerClassName} flex min-h-0 min-w-0 flex-col`} aria-label="Certificado">
             <OntBirthCertificateEmbedded
               birthCertificate={birthCertificate}
               loading={birthCertificateLoading}

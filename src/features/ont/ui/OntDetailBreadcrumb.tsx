@@ -14,12 +14,15 @@ interface Props {
   showLinkIndicator?: boolean
   /** Vuelve a esta ruta desde el breadcrumb mobile (p. ej. vecinos → info). */
   backHref?: string
+  /** Desktop: borde inferior. En detalle ONT con tabs va en `false`. */
+  desktopBottomRule?: boolean
 }
 
 export function OntDetailBreadcrumb({
   ont,
   showLinkIndicator = true,
   backHref = '/ftth',
+  desktopBottomRule = true,
 }: Props) {
   const [searchParams] = useSearchParams()
   const ontContext = useOntContextQuery(ont)
@@ -100,6 +103,7 @@ export function OntDetailBreadcrumb({
       lookerHref={`/ftth/ont/${encodeURIComponent(ont)}/looker`}
       placaPuertoEstadoSlot={estadoDesktop}
       mobileEstadoSlot={estadoMobile}
+      desktopBottomRule={desktopBottomRule}
     />
   )
 }
@@ -125,7 +129,7 @@ function buildOntDesktopItems({
     return [
       { label: 'Home', href: '/ftth' },
       { label: 'infraco' },
-      { label: ontSerial },
+      { label: ontSerial, copyValue: ontSerial },
     ]
   }
 
@@ -136,8 +140,8 @@ function buildOntDesktopItems({
   if (!normalizedOlt) {
     return [
       { label: 'Home', href: '/ftth' },
-      { label: 'ONT' },
-      { label: ontSerial },
+      { label: 'ONT', href: '/ftth/busqueda/elemento-de-red' },
+      { label: ontSerial, copyValue: ontSerial },
     ]
   }
 
@@ -153,7 +157,7 @@ function buildOntDesktopItems({
   if (normalizedPlaca && normalizedPuerto) {
     const portHref = `/ftth/olt/${encodeURIComponent(normalizedOlt)}/placa/${encodeURIComponent(normalizedPlaca)}/puerto/${encodeURIComponent(normalizedPuerto)}`
     items.push({
-      label: `${normalizedOlt}/${normalizedPlaca}/${normalizedPuerto}`,
+      label: `Puerto ${normalizedPlaca}/${normalizedPuerto}`,
       href: `${portHref}?highlightOnt=${encodeURIComponent(ontSerial)}`,
     })
   }
@@ -175,7 +179,7 @@ function buildOntDesktopItems({
     })
   }
 
-  items.push({ label: ontSerial })
+  items.push({ label: ontSerial, copyValue: ontSerial })
   return items
 }
 

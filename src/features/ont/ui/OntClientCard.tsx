@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { FiMapPin, FiPhone, FiUser } from 'react-icons/fi'
 
+import { hasAnyOntValue, isOntMissingValue } from '@/features/ont/lib/missing-value'
 import type { OntClientInfo } from '@/features/ont/types/ont'
-import { OntCardTitle } from '@/features/ont/ui/OntCardChrome'
+import { OntCardEmptyBody, OntCardTitle } from '@/features/ont/ui/OntCardChrome'
 import { clientCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 
@@ -12,9 +13,9 @@ interface Props {
 
 export function OntClientCard({ clientInfo }: Props) {
   const legajo = useAuthStore((s) => s.user?.legajo)
+  const hasClient = hasClientInformation(clientInfo)
   const data = {
     nombre: displayOrNoData(clientInfo?.nombre),
-    numeroCliente: displayOrNoData(clientInfo?.numeroCliente),
     provincia: displayOrNoData(clientInfo?.provincia),
     localidad: displayOrNoData(clientInfo?.localidad),
     direccion: displayOrNoData(clientInfo?.direccion),
@@ -36,59 +37,59 @@ export function OntClientCard({ clientInfo }: Props) {
 
   return (
     <div className={clientCardClassName}>
-      <header className="space-y-0.5">
-        <OntCardTitle icon={FiUser} className="text-lg md:text-[1.05rem]">
-          {data.nombre}
-        </OntCardTitle>
-        <h2 className="pl-[26px] text-xs text-(--text-secondary)">
-          Nro. de cliente: <span className="font-semibold">{data.numeroCliente}</span>
-        </h2>
+      <header>
+        <OntCardTitle icon={FiUser}>Cliente</OntCardTitle>
       </header>
-      <main className="grid gap-2 text-sm md:grid-cols-2 md:gap-x-5 md:gap-y-1 md:text-[12px] xl:gap-y-2">
-        <Field label="Provincia" value={data.provincia} order="md:order-1" />
-        <Field label="Localidad" value={data.localidad} order="md:order-3" />
-        <div className="flex items-center justify-between gap-3 md:order-2">
-          <span className="inline-flex items-center gap-1.5 text-(--text-secondary)">
-            <FiMapPin className="size-3.5 shrink-0 opacity-80" aria-hidden />
-            Domicilio
-          </span>
-          <span className="text-right font-semibold">{data.direccion}</span>
-        </div>
-        <Field label="Piso / dpto" value={data.pisoDpto} order="md:order-4" />
-        <div className="flex items-center justify-between gap-3 md:order-5">
-          <span className="inline-flex items-center gap-1.5 text-(--text-secondary)">
-            <FiPhone className="size-3.5 shrink-0 opacity-80" aria-hidden />
-            Teléfono fijo
-          </span>
-          <span className="flex items-center gap-2 text-right font-semibold">
-            <span>{revealed.fijo ? data.telefonoFijo : masked.fijo}</span>
-            {canRevealFijo && !revealed.fijo ? (
-              <button
-                type="button"
-                className="text-xs font-semibold text-(--primary-2) underline decoration-(--primary-2)/50 underline-offset-2 dark:text-(--secondary)"
-                onClick={() => setConfirming('fijo')}
-              >
-                Ver
-              </button>
-            ) : null}
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-3 md:order-6">
-          <span className="text-(--text-secondary)">Teléfono móvil</span>
-          <span className="flex items-center gap-2 text-right font-semibold">
-            <span>{revealed.movil ? data.telefonoMovil : masked.movil}</span>
-            {canRevealMovil && !revealed.movil ? (
-              <button
-                type="button"
-                className="text-xs font-semibold text-(--primary-2) underline decoration-(--primary-2)/50 underline-offset-2 dark:text-(--secondary)"
-                onClick={() => setConfirming('movil')}
-              >
-                Ver
-              </button>
-            ) : null}
-          </span>
-        </div>
-      </main>
+      {!hasClient ? (
+        <OntCardEmptyBody />
+      ) : (
+        <main className="grid gap-2 text-sm md:grid-cols-2 md:gap-x-5 md:gap-y-1 md:text-[12px] xl:gap-y-2">
+            <Field label="Nombre" value={formatClientText(data.nombre)} order="md:order-1" />
+            <Field label="Provincia" value={formatClientText(data.provincia)} order="md:order-3" />
+            <Field label="Localidad" value={formatClientText(data.localidad)} order="md:order-5" />
+            <div className="flex items-center justify-between gap-3 md:order-2">
+              <span className="inline-flex items-center gap-1.5 text-(--text-secondary)">
+                <FiMapPin className="size-3.5 shrink-0 opacity-80" aria-hidden />
+                Domicilio
+              </span>
+              <span className="text-right font-semibold">{formatClientText(data.direccion)}</span>
+            </div>
+            <Field label="Piso / dpto" value={formatClientText(data.pisoDpto)} order="md:order-4" />
+            <div className="flex items-center justify-between gap-3 md:order-6">
+              <span className="inline-flex items-center gap-1.5 text-(--text-secondary)">
+                <FiPhone className="size-3.5 shrink-0 opacity-80" aria-hidden />
+                Teléfono fijo
+              </span>
+              <span className="flex items-center gap-2 text-right font-semibold">
+                <span>{revealed.fijo ? data.telefonoFijo : masked.fijo}</span>
+                {canRevealFijo && !revealed.fijo ? (
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-(--primary-2) underline decoration-(--primary-2)/50 underline-offset-2 dark:text-(--secondary)"
+                    onClick={() => setConfirming('fijo')}
+                  >
+                    Ver
+                  </button>
+                ) : null}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3 md:order-7">
+              <span className="text-(--text-secondary)">Teléfono móvil</span>
+              <span className="flex items-center gap-2 text-right font-semibold">
+                <span>{revealed.movil ? data.telefonoMovil : masked.movil}</span>
+                {canRevealMovil && !revealed.movil ? (
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-(--primary-2) underline decoration-(--primary-2)/50 underline-offset-2 dark:text-(--secondary)"
+                    onClick={() => setConfirming('movil')}
+                  >
+                    Ver
+                  </button>
+                ) : null}
+              </span>
+            </div>
+        </main>
+      )}
 
       {confirming ? (
         <div className="rounded-xl border border-amber-500/50 bg-amber-50 px-3 py-2 text-xs text-amber-900 shadow-sm dark:border-amber-400/50 dark:bg-[rgb(24_20_10)] dark:text-amber-300 dark:shadow-[0_4px_12px_rgb(0_0_0/0.35)]">
@@ -133,9 +134,24 @@ function Field({ label, value, order }: { label: string; value: string; order: s
   )
 }
 
+function hasClientInformation(info: OntClientInfo | null): boolean {
+  if (!info) return false
+  return hasAnyOntValue(Object.values(info))
+}
+
 function displayOrNoData(value: string | null | undefined): string {
   const trimmed = value?.trim() ?? ''
-  return trimmed.length > 0 ? trimmed : 'Sin Datos'
+  return isOntMissingValue(trimmed) ? 'Sin Datos' : trimmed
+}
+
+/** Solo presentación: el facade manda MAYÚSCULAS y no las tocamos en origen. */
+function formatClientText(value: string): string {
+  if (isOntMissingValue(value)) return value
+  return value
+    .toLocaleLowerCase('es')
+    .replace(/(^|[^\p{L}\p{N}]+)(\p{L})/gu, (_, sep: string, letter: string) => {
+      return `${sep}${letter.toLocaleUpperCase('es')}`
+    })
 }
 
 function maskPhone(value: string): string {

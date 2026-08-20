@@ -51,6 +51,8 @@ export interface HistoricStatusBarSample {
   status: HistoricStatusBarKind
   label: string
   timeLabel: string
+  hoverWhen: string
+  isLatest: boolean
   offsetPercent: number
 }
 
@@ -69,6 +71,19 @@ export function toHistoricStatusBarKind(statusLabel?: string): HistoricStatusBar
 
 export function historicStatusBarLabel(status: HistoricStatusBarKind): string {
   return HISTORIC_STATUS_BAR_LEGEND.find((item) => item.status === status)?.label ?? 'Apagado'
+}
+
+export function historicStatusHoverLabel(status: HistoricStatusBarKind): string {
+  switch (status) {
+    case 'INTERRUPTED':
+      return 'Interrumpida'
+    case 'DEGRADED':
+      return 'Degradada'
+    case 'GOOD':
+      return 'Disponible'
+    default:
+      return 'Apagada'
+  }
 }
 
 export function buildHistoricStatusBarModel(
@@ -150,6 +165,41 @@ function parsePointInstant(point: ComparisonSeriesPoint): number | null {
   return Number.isNaN(parsed) ? null : parsed
 }
 
+const MONTHS_SHORT = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+] as const
+
+function formatStatusHoverWhen(point: ComparisonSeriesPoint): string {
+  const instant = parsePointInstant(point)
+  if (instant === null) return point.label
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    day: 'numeric',
+    month: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date(instant))
+  const day = parts.find((part) => part.type === 'day')?.value
+  const monthNum = Number.parseInt(parts.find((part) => part.type === 'month')?.value ?? '', 10)
+  const hour = parts.find((part) => part.type === 'hour')?.value
+  const minute = parts.find((part) => part.type === 'minute')?.value
+  const month = Number.isFinite(monthNum) ? MONTHS_SHORT[monthNum - 1] : null
+  if (!day || !month || !hour || !minute) return point.label
+  return `${day} ${month}, ${hour}:${minute}`
+}
+
 function formatStatusTickLabel(point: ComparisonSeriesPoint): string {
   const instant = parsePointInstant(point)
   if (instant === null) return point.label
@@ -191,6 +241,8 @@ function buildSamples(
       status,
       label: historicStatusBarLabel(status),
       timeLabel: formatStatusTickLabel(points[index]),
+      hoverWhen: formatStatusHoverWhen(points[index]),
+      isLatest: index === points.length - 1,
       offsetPercent: Math.min(100, (center / totalWeight) * 100),
     })
     cumulative += weights[index]

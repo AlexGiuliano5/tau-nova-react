@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import type { IconType } from 'react-icons'
 import type { ReactNode } from 'react'
+import { FiInfo } from 'react-icons/fi'
 
 /** Título de card con ícono L1 (identidad del bloque). */
 export function OntCardTitle({
@@ -17,13 +18,30 @@ export function OntCardTitle({
   return (
     <Tag
       className={clsx(
-        'inline-flex min-w-0 items-center gap-2 text-base leading-tight font-semibold tracking-tight md:text-[1.05rem]',
+        'inline-flex min-w-0 items-center gap-2 text-[13px] font-medium leading-tight tracking-tight md:text-[14px]',
         className,
       )}
     >
-      <Icon className="size-[18px] shrink-0 text-(--text-primary)/75" aria-hidden />
+      <Icon className="size-[18px] shrink-0 text-(--text-secondary)" aria-hidden />
       <span className="min-w-0">{children}</span>
     </Tag>
+  )
+}
+
+/** Cuerpo vacío de card: un solo mensaje centrado, sin listar campos en "Sin Datos". */
+export function OntCardEmptyBody({ className }: { className?: string }) {
+  return (
+    <div
+      className={clsx(
+        'flex min-h-0 w-full flex-1 items-center justify-center px-3 py-8',
+        className,
+      )}
+    >
+      <p className="inline-flex items-center gap-2 whitespace-nowrap text-[13px] leading-none text-(--text-secondary)">
+        <FiInfo className="size-4 shrink-0" aria-hidden />
+        <span>Sin información asociada a esta ONT</span>
+      </p>
+    </div>
   )
 }
 

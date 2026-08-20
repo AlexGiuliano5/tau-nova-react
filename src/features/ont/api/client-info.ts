@@ -48,7 +48,6 @@ export async function fetchOntClientInfo(
 
   return {
     nombre: toTextOrNoData(payload.abonado),
-    numeroCliente: 'Sin Datos',
     provincia: toTextOrNoData(payload.province),
     localidad: toTextOrNoData(payload.localidad),
     direccion: direccion || 'Sin Datos',

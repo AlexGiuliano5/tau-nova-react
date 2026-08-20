@@ -173,7 +173,7 @@ export function Sidebar({ userInfo }: SidebarProps) {
   return (
     <div
       className={clsx(
-        'fixed inset-x-0 bottom-0 top-[70px] z-9999 transition-opacity duration-300 md:top-[58px]',
+        'fixed inset-x-0 bottom-0 top-[70px] z-9999 transition-opacity duration-300 md:top-[64px]',
         isSideMenuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
       )}
     >

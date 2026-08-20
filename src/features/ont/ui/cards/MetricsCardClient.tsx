@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
+
+import { FiActivity } from 'react-icons/fi'
 
 import { FtthDataIssueNotice } from '@/features/ftth/components/FtthDataIssueNotice'
 import { resolveFtthDisplayIssueToneClass } from '@/features/ftth/lib/card-issue'
@@ -20,6 +22,7 @@ import type { OntContext } from '@/features/ont/types/ont'
 import { OntCapaControlSection } from '@/features/ont/ui/OntCapaControlSection'
 import { metricsCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
 import { OntMetricCard } from '@/features/ont/ui/OntMetricCard'
+import { OntCardTitle } from '@/features/ont/ui/OntCardChrome'
 import { HelpInfoPopover } from '@/shared/ui/HelpInfoPopover'
 
 interface Props {
@@ -115,6 +118,7 @@ export function MetricsCardClient({ ont, context }: Props) {
   }, [context.olt, isInfraco, ont, recalculating])
 
   const isEmpty = metrics.length === 0
+  const lastUpdateHora = useMemo(() => resolveMetricsUpdatedHora(metrics), [metrics])
 
   return (
     <div
@@ -126,9 +130,9 @@ export function MetricsCardClient({ ont, context }: Props) {
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
-          <h1 className="text-lg font-semibold leading-tight tracking-tight md:text-[1.05rem]">
+          <OntCardTitle icon={FiActivity} as="h1">
             Métricas
-          </h1>
+          </OntCardTitle>
           <HelpInfoPopover
             ariaLabel="Ver ayuda sobre métricas"
             panelClassName="left-0 translate-x-0"
@@ -142,7 +146,10 @@ export function MetricsCardClient({ ont, context }: Props) {
             }
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {lastUpdateHora ? (
+            <p className="text-xs text-(--text-secondary)">Última actualización {lastUpdateHora}</p>
+          ) : null}
           {feedback ? (
             <p className="text-xs text-(--text-secondary)" role="status">
               {feedback}
@@ -188,6 +195,17 @@ export function MetricsCardClient({ ont, context }: Props) {
       ) : null}
     </div>
   )
+}
+
+function resolveMetricsUpdatedHora(metrics: OntMetricCardModel[]): string | null {
+  for (const metric of metrics) {
+    const raw = metric.eventTime?.trim() || metric.time?.trim()
+    if (!raw || raw === 'Sin Datos') continue
+    const spaceIndex = raw.indexOf(' ')
+    const hora = (spaceIndex === -1 ? raw : raw.slice(spaceIndex + 1)).trim()
+    if (hora) return hora
+  }
+  return null
 }
 
 function mergeRealtimeIntoMetrics(

@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function FtthQuickSearchCompact({
-  placeholder = 'OLT · ONT · NAP · CDO · DNI · CUIT',
+  placeholder = 'OLT · ONT',
 }: Props) {
   const location = useLocation()
   const navigate = useNavigate()

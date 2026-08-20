@@ -13,7 +13,7 @@ export function PreferencesShell({ children }: PreferencesShellProps) {
   const isRoot = location.pathname === '/ftth/preferencias'
 
   return (
-    <div className="flex min-h-[calc(100dvh-70px-50px)] flex-1 flex-col md:min-h-[calc(100dvh-58px-36px)] md:flex-row md:items-stretch">
+    <div className="flex min-h-[calc(100dvh-70px-50px)] flex-1 flex-col md:min-h-[calc(100dvh-64px-32px)] md:flex-row md:items-stretch">
       <PreferencesNav className={clsx(isRoot ? 'flex' : 'hidden md:flex')} />
 
       <div

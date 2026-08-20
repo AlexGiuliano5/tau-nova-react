@@ -3,7 +3,9 @@ import clsx from 'clsx'
 
 import {
   HISTORIC_STATUS_BAR_LEGEND,
+  historicStatusHoverLabel,
   sampleAtPercent,
+  type HistoricStatusBarKind,
   type HistoricStatusBarModel,
   type HistoricStatusBarSample,
 } from '@/features/ont/lib/historic-status-bar'
@@ -111,8 +113,8 @@ function StatusBarTrack({
       {activeSample ? (
         <div
           className={clsx(
-            'pointer-events-none absolute z-20 min-w-[9.5rem] rounded-lg border border-(--table-stroke) bg-(--card) px-2.5 py-1.5 text-[11px] shadow-md dark:border-white/12',
-            compact ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+8px)]',
+            'pointer-events-none absolute z-20 min-w-[10rem] rounded-lg border border-(--table-stroke) bg-(--card) px-2.5 py-1.5 text-[11px] shadow-md dark:border-white/12',
+            'bottom-[calc(100%+8px)]',
           )}
           style={{
             left: `${activeSample.offsetPercent}%`,
@@ -125,12 +127,22 @@ function StatusBarTrack({
           }}
           role="status"
         >
-          <p className="m-0 font-semibold text-(--text-primary)">{activeSample.label}</p>
-          <p className="m-0 text-(--text-secondary)">{activeSample.timeLabel}</p>
+          <p className="m-0 font-semibold text-(--text-primary)">{activeSample.hoverWhen}</p>
+          <p className={clsx('m-0', hoverStatusClass(activeSample.status))}>
+            {historicStatusHoverLabel(activeSample.status)}
+            {activeSample.isLatest ? ' · en curso' : ''}
+          </p>
         </div>
       ) : null}
     </>
   )
+}
+
+function hoverStatusClass(status: HistoricStatusBarKind): string {
+  if (status === 'INTERRUPTED') return 'text-(--state-03)'
+  if (status === 'DEGRADED') return 'text-(--state-02)'
+  if (status === 'GOOD') return 'text-(--state-01)'
+  return 'text-(--text-secondary)'
 }
 
 function historicBarClass(status: HistoricStatusBarModel['segments'][number]['status']): string {
