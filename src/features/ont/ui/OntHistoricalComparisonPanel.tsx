@@ -269,7 +269,7 @@ function ChartSpinner({ className }: { className?: string }) {
       aria-busy="true"
       aria-label="Cargando gráfico"
     >
-      <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent dark:border-violet-400 dark:border-t-transparent" />
+      <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-(--primary-2) border-t-transparent dark:border-(--secondary)" />
     </div>
   )
 }

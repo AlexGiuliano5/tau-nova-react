@@ -838,7 +838,7 @@ html.dm .ftth-status-icon-prime-tooltip .p-tooltip-text {
   }
 
   .dm .ftth-shell-scroll {
-    scrollbar-color: rgb(160 122 248 / 0.65) rgb(255 255 255 / 0.07);
+    scrollbar-color: color-mix(in srgb, var(--secondary) 65%, transparent) rgb(255 255 255 / 0.07);
   }
 
   .dm .ftth-shell-scroll::-webkit-scrollbar-track {
@@ -846,12 +846,16 @@ html.dm .ftth-status-icon-prime-tooltip .p-tooltip-text {
   }
 
   .dm .ftth-shell-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgb(160 122 248 / 0.88), rgb(109 75 198 / 0.88));
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--secondary) 88%, transparent),
+      color-mix(in srgb, var(--secondary-3) 88%, transparent)
+    );
     border-color: rgb(255 255 255 / 0.07);
   }
 
   .dm .ftth-shell-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgb(179 146 255), rgb(124 88 219));
+    background: linear-gradient(180deg, var(--secondary), var(--secondary-3));
   }
 
   .app-ftth-data-table .p-datatable-wrapper,

@@ -30,11 +30,20 @@ export type HistoricalByOntMetricName =
 /** @deprecated usar ComparisonGraphId */
 export type ComparisonMetricId = HistoricalByOntMetricName
 
-export type HistoricChartDays = 'PT1H' | 'PT6H' | 'PT12H' | 'P1D' | 'P3D' | 'P7D'
+export type HistoricChartDays =
+  | 'PT1H'
+  | 'PT2H'
+  | 'PT3H'
+  | 'PT6H'
+  | 'PT12H'
+  | 'P1D'
+  | 'P3D'
+  | 'P5D'
+  | 'P7D'
 export type HistoricStatusTimeFilter = '2H' | '3H' | '6H' | '3D' | '5D' | '7D'
 
 export const DEFAULT_HISTORIC_CHART_DAYS: HistoricChartDays = 'PT12H'
-export const DEFAULT_HISTORIC_STATUS_TIME_FILTER: HistoricStatusTimeFilter = '3D'
+export const DEFAULT_HISTORIC_STATUS_TIME_FILTER: HistoricStatusTimeFilter = '2H'
 
 export const HISTORIC_CHART_DAY_OPTIONS: ReadonlyArray<{ value: HistoricChartDays; label: string }> =
   [
@@ -57,6 +66,24 @@ export const HISTORIC_STATUS_TIME_FILTER_OPTIONS: ReadonlyArray<{
   { value: '5D', label: '5D' },
   { value: '7D', label: '7D' },
 ]
+
+/** Convierte el filtro de UI (2H…7D) al `days` ISO que espera `historicalbyont`. */
+export function historicPeriodToIsoDays(filter: HistoricStatusTimeFilter): HistoricChartDays {
+  switch (filter) {
+    case '2H':
+      return 'PT2H'
+    case '3H':
+      return 'PT3H'
+    case '6H':
+      return 'PT6H'
+    case '3D':
+      return 'P3D'
+    case '5D':
+      return 'P5D'
+    case '7D':
+      return 'P7D'
+  }
+}
 
 export const GRAPH_ID_TO_HISTORICAL_METRIC: Partial<
   Record<ComparisonGraphId, HistoricalByOntMetricName>

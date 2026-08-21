@@ -281,7 +281,7 @@ function PreviewCellSpinner() {
       role="status"
       aria-busy="true"
     >
-      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent dark:border-violet-400 dark:border-t-transparent" />
+      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-(--primary-2) border-t-transparent dark:border-(--secondary)" />
     </div>
   )
 }

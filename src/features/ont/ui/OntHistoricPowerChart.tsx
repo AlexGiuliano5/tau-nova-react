@@ -47,10 +47,10 @@ export function resolveHistoricPowerLatest(
   const thresholds = getOntMetricThresholdConfig(metricTitle)
   const segment =
     thresholds ? resolveOntMetricThresholdSegment(lastValue, thresholds) : null
-  const displayUnit = unit.trim() || 'dBm'
+  const displayUnit = unit.trim()
 
   return {
-    formatted: `${lastValue.toFixed(1)} ${displayUnit}`,
+    formatted: displayUnit ? `${lastValue.toFixed(1)} ${displayUnit}` : lastValue.toFixed(1),
     statusLabel: segment ? chartStatusLabel(segment) : null,
     statusTone: segment?.tone ?? null,
   }
@@ -85,7 +85,7 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
     return extendThresholdSegmentsToDomain(thresholds, yDomain[0], yDomain[1])
   }, [thresholds, yDomain])
 
-  const displayUnit = unit.trim() || 'dBm'
+  const displayUnit = unit.trim()
 
   return (
     <div className="flex flex-col gap-3">
@@ -125,7 +125,7 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
               }}
               formatter={(value) => {
                 if (typeof value !== 'number') return ['—', title]
-                return [`${value.toFixed(2)} ${displayUnit}`, title]
+                return [displayUnit ? `${value.toFixed(2)} ${displayUnit}` : value.toFixed(2), title]
               }}
             />
             <Line
@@ -145,7 +145,11 @@ export function OntHistoricPowerChart({ title, metricTitle, unit, rows }: Props)
       <ul className="m-0 flex list-none flex-wrap items-center gap-x-5 gap-y-2 p-0 text-xs text-(--text-primary)">
         <li className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-[2px] bg-(--primary)" aria-hidden />
-          Potencia ({displayUnit})
+          {displayUnit === 'dBm'
+            ? `Potencia (${displayUnit})`
+            : displayUnit
+              ? `${title} (${displayUnit})`
+              : title}
         </li>
         {legendItems(thresholds?.segments ?? []).map((item) => (
           <li key={item.label} className="inline-flex items-center gap-1.5">

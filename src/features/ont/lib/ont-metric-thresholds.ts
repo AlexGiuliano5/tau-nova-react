@@ -59,9 +59,7 @@ export function getOntMetricThresholdConfig(title: string): OntMetricThresholdCo
   return null
 }
 
-export function ontMetricThresholdTitleForGraph(
-  graphId: 'ont-rx' | 'ont-tx' | 'olt-rx' | 'olt-tx',
-): string {
+export function ontMetricThresholdTitleForGraph(graphId: string): string {
   switch (graphId) {
     case 'ont-rx':
       return 'ONT RX'
@@ -71,6 +69,12 @@ export function ontMetricThresholdTitleForGraph(
       return 'OLT RX'
     case 'olt-tx':
       return 'OLT TX'
+    case 'ont-voltage':
+      return 'ONT VOLTAGE'
+    case 'ont-temp-laser':
+      return 'ONT TEMP LASER'
+    default:
+      return ''
   }
 }
 

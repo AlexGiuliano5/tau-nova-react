@@ -53,9 +53,9 @@ html.dm {
   --primary: #0076c7;
   --primary-2: #0076c7;
   --primary-3: #052c50;
-  --secondary: #a07af8;
+  --secondary: #5b9bf5;
   --secondary-2: #3d00a9;
-  --secondary-3: #281e5a;
+  --secondary-3: #3b7ce0;
   --secondary-4: #140232;
   --background: #121212;
   --card: #1f1f1f;
@@ -134,7 +134,7 @@ html:has(main.h-dvh.overflow-hidden) body {
 }
 
 html.dm .ont-detail-tab-active {
-  border-bottom-color: rgb(196 180 255 / 0.95);
+  border-bottom-color: rgb(167 201 250 / 0.95);
 }
 
 /* Brush de gráficos históricos de comparativa (alineado a tau-nova) */
