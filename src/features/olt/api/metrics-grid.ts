@@ -13,6 +13,7 @@ const PREVIEW_PAGE_SIZE = 5
 
 export type OltMetricsGridPageSize = 25 | 50 | 100
 
+
 function emptyModel(pageSize: number): OltMetricsGridPageModel {
   return {
     columnNames: [],
