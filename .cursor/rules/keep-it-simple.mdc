@@ -1,0 +1,22 @@
+---
+description: Resolver siempre por el camino más corto — sin enroscarse ni tocar de más
+alwaysApply: true
+---
+
+# Lo más simple posible
+
+El cambio correcto es el más chico que cumple el pedido. Antes de tocar código, preguntate: ¿esto se resuelve en un archivo, una condición, o un recorte de UI?
+
+## Hacer
+
+- Preferí el arreglo local (una prop, un `if`, un componente) sobre extraer abstracciones.
+- Tocá solo lo que el pedido necesita. Si alcanza con ocultar un bloque, no rediseñes el flujo.
+- Reutilizá lo que ya existe. No crees helpers, tipos ni archivos “por si acaso”.
+- Si hay dos caminos, elegí el que cambia menos superficie. Después, si hace falta, se generaliza.
+
+## No hacer
+
+- Refactors, renames o “mientras estamos” en archivos que no son el problema.
+- Nuevas capas, stores, hooks o configs para un caso puntual.
+- Propagar un cambio por media docena de archivos cuando el dueño del comportamiento ya lo puede resolver.
+- Enroscarse: si el tercer enfoque es más complejo que el primero que funcionaba, volvé al primero.

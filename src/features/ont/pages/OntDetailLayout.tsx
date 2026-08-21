@@ -54,7 +54,7 @@ function OntDetailLayoutBody({ ont }: { ont: string }) {
       <RecentNetworkElementSearchRecorder value={decodedOnt} />
       <OntDetailBreadcrumb ont={ont} showLinkIndicator desktopBottomRule={false} />
       <OntDetailTabs ont={ont} />
-      <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+      <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto md:pt-3">
         {mountedTabs.info ? (
           <div
             className={clsx(!isInfo && 'hidden')}

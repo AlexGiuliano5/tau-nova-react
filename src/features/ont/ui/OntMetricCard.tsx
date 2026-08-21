@@ -241,6 +241,7 @@ export function OntMetricCard({
     unitLabel && unitLabel !== 'Sin Datos' ? `${metric.title} (${unitLabel})` : metric.title
   const thresholdBarConfig = getOntMetricThresholdConfig(metric.title)
   const isBipMetric = Boolean(resolveOntBipMetricGraphId(metric.title))
+  const showAggregateStats = !isBipMetric
   const parsedActualValue = parseMetricNumber(metric.actual)
   const activeSegment =
     thresholdBarConfig && parsedActualValue !== null
@@ -465,23 +466,25 @@ export function OntMetricCard({
               </p>
             ) : null}
 
-            <div className="flex h-7 shrink-0 items-center justify-center md:hidden">
-              <button
-                type="button"
-                aria-expanded={isExpanded}
-                aria-label={`Mostrar detalle de ${metric.title}`}
-                className="inline-flex items-center justify-center rounded-md p-1 text-(--text-secondary)"
-                onClick={() => setIsExpanded((prev) => !prev)}
-              >
-                <IoChevronDown
-                  className={clsx(
-                    'transition-transform duration-200',
-                    isExpanded && 'rotate-180',
-                  )}
-                  size={20}
-                />
-              </button>
-            </div>
+            {showAggregateStats ? (
+              <div className="flex h-7 shrink-0 items-center justify-center md:hidden">
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-label={`Mostrar detalle de ${metric.title}`}
+                  className="inline-flex items-center justify-center rounded-md p-1 text-(--text-secondary)"
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                >
+                  <IoChevronDown
+                    className={clsx(
+                      'transition-transform duration-200',
+                      isExpanded && 'rotate-180',
+                    )}
+                    size={20}
+                  />
+                </button>
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="flex w-full items-center justify-center py-3">
@@ -501,52 +504,49 @@ export function OntMetricCard({
         </div>
       ) : null}
 
-      <div
-        className={clsx(
-          'w-full shrink-0 pt-2 lg:flex lg:flex-col lg:pt-0',
-          isExpanded ? 'block' : 'hidden md:block',
-        )}
-      >
+      {showAggregateStats ? (
         <div
           className={clsx(
-            'mx-auto w-full max-w-[220px] border-t border-black/10 pt-2 lg:max-w-none lg:pt-1.5 dark:border-white/10',
-            showBipSparkline ? 'mt-0 lg:mt-1' : 'mt-2 lg:mt-2',
+            'w-full shrink-0 pt-2 lg:flex lg:flex-col lg:pt-0',
+            isExpanded ? 'block' : 'hidden md:block',
           )}
         >
-          <div
-            role={showAggregateStatsBusy ? 'status' : undefined}
-            aria-busy={showAggregateStatsBusy ? true : undefined}
-            className="mx-auto grid w-full grid-cols-3 gap-2 text-center lg:gap-1.5"
-          >
-            {showAggregateStatsBusy ? (
-              <span className="sr-only">
-                Cargando mínimo, promedio y máximo para {metric.title}
-              </span>
-            ) : null}
-            {(
-              [
-                { label: 'min', value: metric.min },
-                { label: 'prom', value: metric.avg },
-                { label: 'max', value: metric.max },
-              ] as const
-            ).map(({ label, value }) => (
-              <div
-                key={label}
-                className="flex min-h-[36px] flex-col items-center justify-center gap-0.5 text-center lg:min-h-[28px]"
-              >
-                {showAggregateStatsBusy ? (
-                  <OntAggregateStatsSpinner />
-                ) : (
-                  <span className="text-xs font-semibold md:text-[11px]">{formatOntMetricCardValue(value)}</span>
-                )}
-                <span className="text-[10px] leading-tight text-(--text-secondary) md:text-[9px]">
-                  {label}
+          <div className="mx-auto mt-2 w-full max-w-[220px] border-t border-black/10 pt-2 lg:mt-2 lg:max-w-none lg:pt-1.5 dark:border-white/10">
+            <div
+              role={showAggregateStatsBusy ? 'status' : undefined}
+              aria-busy={showAggregateStatsBusy ? true : undefined}
+              className="mx-auto grid w-full grid-cols-3 gap-2 text-center lg:gap-1.5"
+            >
+              {showAggregateStatsBusy ? (
+                <span className="sr-only">
+                  Cargando mínimo, promedio y máximo para {metric.title}
                 </span>
-              </div>
-            ))}
+              ) : null}
+              {(
+                [
+                  { label: 'min', value: metric.min },
+                  { label: 'prom', value: metric.avg },
+                  { label: 'max', value: metric.max },
+                ] as const
+              ).map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="flex min-h-[36px] flex-col items-center justify-center gap-0.5 text-center lg:min-h-[28px]"
+                >
+                  {showAggregateStatsBusy ? (
+                    <OntAggregateStatsSpinner />
+                  ) : (
+                    <span className="text-xs font-semibold md:text-[11px]">{formatOntMetricCardValue(value)}</span>
+                  )}
+                  <span className="text-[10px] leading-tight text-(--text-secondary) md:text-[9px]">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   )
 }

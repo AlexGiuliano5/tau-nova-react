@@ -35,7 +35,10 @@ import type {
   OntInfoScreenLayoutDraft,
   OntInfoScreenViewMode,
 } from '@/features/ont-preferences/types/layout'
-import { resolveOntInfoCardsPreferenceKey } from '@/features/ont-preferences/types/layout'
+import {
+  resolveOntInfoCardsPreferenceKey,
+  resolveOntInfoMetricsPreferenceKey,
+} from '@/features/ont-preferences/types/layout'
 
 function useIsDesktop(): boolean {
   const [isDesktop, setIsDesktop] = useState(true)
@@ -95,10 +98,9 @@ export function OntInfoPage() {
   const contextPending = ontContext.isPending && !ontContext.data
   const skeletonOnly = !prefsReady || contextPending
 
-  const cardsKey = resolveOntInfoCardsPreferenceKey(
-    isDesktop ? 'desktop' : 'mobile',
-    viewMode,
-  )
+  const viewport = isDesktop ? 'desktop' : 'mobile'
+  const cardsKey = resolveOntInfoCardsPreferenceKey(viewport, viewMode)
+  const metricsKey = resolveOntInfoMetricsPreferenceKey(viewport, viewMode)
   const preferenceCards = skeletonOnly
     ? buildDefaultLayoutDraft()[
         viewMode === 'infraco'
@@ -110,6 +112,7 @@ export function OntInfoPage() {
             : 'mobile'
       ]
     : layoutDraft[cardsKey]
+  const metricPreferences = layoutDraft[metricsKey]
 
   const runtimeCards = useMemo(
     () => prepareOntInfoRuntimeCards(preferenceCards, viewMode, isDesktop),
@@ -143,6 +146,7 @@ export function OntInfoPage() {
         skeletonOnly={skeletonOnly}
         ont={ont}
         context={context}
+        metricPreferences={metricPreferences}
       />
     </div>
   )
@@ -154,18 +158,20 @@ function OntInfoStreamingLayout({
   skeletonOnly,
   ont,
   context,
+  metricPreferences,
 }: {
   cards: OntInfoOrderItem[]
   isDesktop: boolean
   skeletonOnly: boolean
   ont: string
   context: OntContext | null
+  metricPreferences: OntInfoOrderItem[]
 }) {
   const renderSlot = (card: OntInfoOrderItem): ReactNode => {
     if (skeletonOnly || !context) {
       return cardLoadingFallback(card.id as OntInfoCardId)
     }
-    return renderLiveCard(card.id as OntInfoCardId, ont, context, isDesktop)
+    return renderLiveCard(card.id as OntInfoCardId, ont, context, isDesktop, metricPreferences)
   }
 
   if (!isDesktop) {
@@ -233,6 +239,7 @@ function renderLiveCard(
   ont: string,
   context: OntContext,
   isDesktop: boolean,
+  metricPreferences: OntInfoOrderItem[],
 ): ReactNode {
   switch (cardId) {
     case 'alertas':
@@ -242,7 +249,9 @@ function renderLiveCard(
     case 'info':
       return <DetailsCardClient ont={ont} context={context} />
     case 'metricas':
-      return <MetricsCardClient ont={ont} context={context} />
+      return (
+        <MetricsCardClient ont={ont} context={context} metricPreferences={metricPreferences} />
+      )
     case 'interrupciones':
       return context.mode === 'infraco' ? null : (
         <InterruptionsCardClient ont={ont} context={context} />

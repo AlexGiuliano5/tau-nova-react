@@ -107,23 +107,25 @@ export function NeighborsTableToolbar({
             </button>
           ) : null}
           {showCompareButton ? (
-            <button
-              type="button"
-              disabled={!canRunCompare}
-              onClick={onCompare}
-              className={clsx(
-                toolbarBtnBase,
-                canRunCompare
-                  ? clsx(
-                      'border-(--table-stroke) bg-(--card) text-(--text-primary) hover:bg-(--table-header) dark:hover:bg-white/5',
-                      showCompare &&
-                        'border-(--primary-2)/35 bg-(--primary-2)/10 text-(--primary-2) dark:border-(--secondary)/40 dark:bg-(--secondary)/15 dark:text-(--secondary)',
-                    )
-                  : 'cursor-not-allowed border-(--table-stroke) bg-(--card) text-(--text-secondary) opacity-55',
-              )}
-            >
-              {showCompare ? 'Ocultar comparativa' : 'Comparar'}
-            </button>
+            <span title={!canRunCompare ? 'Debe seleccionar 2 o + Onts para realizar la comparacion' : undefined}>
+              <button
+                type="button"
+                disabled={!canRunCompare}
+                onClick={onCompare}
+                className={clsx(
+                  toolbarBtnBase,
+                  canRunCompare
+                    ? clsx(
+                        'border-(--table-stroke) bg-(--card) text-(--text-primary) hover:bg-(--table-header) dark:hover:bg-white/5',
+                        showCompare &&
+                          'border-(--primary-2)/35 bg-(--primary-2)/10 text-(--primary-2) dark:border-(--secondary)/40 dark:bg-(--secondary)/15 dark:text-(--secondary)',
+                      )
+                    : 'cursor-not-allowed border-(--table-stroke) bg-(--card) text-(--text-secondary) opacity-55',
+                )}
+              >
+                {showCompare ? 'Ocultar comparativa' : 'Comparar'}
+              </button>
+            </span>
           ) : null}
           {showRecalculateButton ? (
             <button

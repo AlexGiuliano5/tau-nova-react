@@ -18,7 +18,12 @@ import {
   type OntMetricCardModel,
   unwrapAggByOntWire,
 } from '@/features/ont/lib/ont-metric-display'
+import {
+  applyOpticalMetricPreferences,
+  resolveVisibleCapaMetricPrefIds,
+} from '@/features/ont/lib/layout-runtime'
 import type { OntContext } from '@/features/ont/types/ont'
+import type { OntInfoOrderItem } from '@/features/ont-preferences/types/layout'
 import { OntCapaControlSection } from '@/features/ont/ui/OntCapaControlSection'
 import { metricsCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
 import { OntMetricCard } from '@/features/ont/ui/OntMetricCard'
@@ -28,6 +33,7 @@ import { HelpInfoPopover } from '@/shared/ui/HelpInfoPopover'
 interface Props {
   ont: string
   context: OntContext
+  metricPreferences?: OntInfoOrderItem[]
 }
 
 const REALTIME_TITLE_BY_FIELD: Array<{
@@ -50,7 +56,7 @@ function initialMetrics(context: OntContext): OntMetricCardModel[] {
   return lastValuesToMetricCards(context.lastValues)
 }
 
-export function MetricsCardClient({ ont, context }: Props) {
+export function MetricsCardClient({ ont, context, metricPreferences }: Props) {
   const isInfraco = context.mode === 'infraco'
   const [metrics, setMetrics] = useState<OntMetricCardModel[]>(() => initialMetrics(context))
   const [aggregateLoading, setAggregateLoading] = useState(false)
@@ -117,8 +123,17 @@ export function MetricsCardClient({ ont, context }: Props) {
     setRecalculating(false)
   }, [context.olt, isInfraco, ont, recalculating])
 
-  const isEmpty = metrics.length === 0
-  const lastUpdateHora = useMemo(() => resolveMetricsUpdatedHora(metrics), [metrics])
+  const displayedMetrics = useMemo(
+    () => applyOpticalMetricPreferences(metrics, metricPreferences),
+    [metricPreferences, metrics],
+  )
+  const capaPrefIds = useMemo(
+    () => resolveVisibleCapaMetricPrefIds(metricPreferences),
+    [metricPreferences],
+  )
+  const showCapaControl = !isInfraco && (capaPrefIds === null || capaPrefIds.length > 0)
+  const isEmpty = displayedMetrics.length === 0 && !showCapaControl
+  const lastUpdateHora = useMemo(() => resolveMetricsUpdatedHora(displayedMetrics), [displayedMetrics])
 
   return (
     <div
@@ -176,9 +191,9 @@ export function MetricsCardClient({ ont, context }: Props) {
         >
           <FtthDataIssueNotice presentation="inline" issue="no-data" context="las métricas" />
         </div>
-      ) : (
+      ) : displayedMetrics.length > 0 ? (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map((metric) => (
+          {displayedMetrics.map((metric) => (
             <OntMetricCard
               key={metric.title}
               metric={metric}
@@ -188,10 +203,14 @@ export function MetricsCardClient({ ont, context }: Props) {
             />
           ))}
         </div>
-      )}
+      ) : null}
 
-      {!isInfraco ? (
-        <OntCapaControlSection ont={ont} refreshToken={capaRefreshToken} />
+      {showCapaControl ? (
+        <OntCapaControlSection
+          ont={ont}
+          refreshToken={capaRefreshToken}
+          visiblePrefIds={capaPrefIds ?? undefined}
+        />
       ) : null}
     </div>
   )

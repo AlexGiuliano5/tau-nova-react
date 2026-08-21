@@ -37,7 +37,7 @@ export function OntDetailTabs({ ont }: Props) {
 
       <nav
         aria-label="Secciones de detalle ONT"
-        className="hidden items-end gap-6 border-t border-[#e5e7eb] bg-(--card) px-3 pt-1 dark:border-white/10 md:flex"
+        className="hidden items-end gap-6 border-b border-[#e5e7eb] bg-(--background) px-6 pt-3 dark:border-white/10 md:flex lg:px-8"
       >
         {tabs.map((tab) => (
           <OntDetailTabLink
@@ -74,7 +74,7 @@ function OntDetailTabLink({
             : 'border-b-transparent text-white/80 hover:text-white',
         )
       : clsx(
-          'inline-flex items-center border-b-2 px-3 pb-2.5 pt-2.5 text-sm transition-colors',
+          'inline-flex items-center border-b-2 px-3 pb-3 pt-1 text-sm -mb-px transition-colors',
           isActive
             ? 'border-(--primary) font-medium text-(--primary-2) dark:border-(--secondary) dark:text-(--secondary)'
             : 'border-transparent text-black/45 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70',

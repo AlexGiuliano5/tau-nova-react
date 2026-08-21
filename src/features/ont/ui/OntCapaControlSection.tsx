@@ -21,9 +21,13 @@ const EMPTY = 'Sin Datos'
 interface Props {
   ont: string
   refreshToken?: number
+  /** Orden de visibilidad de capa. Sin valor = las 4 en orden default. */
+  visiblePrefIds?: string[]
 }
 
-export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
+const DEFAULT_CAPA_PREF_IDS = ['capa-access', 'capa-ip', 'capa-portal', 'capa-levanto'] as const
+
+export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }: Props) {
   const serialNumber = useMemo(() => resolveCapaControlSerialNumber(ont.trim()), [ont])
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<BffOntCapaControlData | null>(null)
@@ -62,45 +66,51 @@ export function OntCapaControlSection({ ont, refreshToken = 0 }: Props) {
     allOtherFieldsEmpty: allOtherEmpty,
   })
 
-  const pairs: CapaControlStatItem[][] = [
-    [
-      {
-        label: 'Access',
-        icon: IoGitNetworkOutline,
-        value: (
-          <span className="block wrap-break-word font-mono text-[10px] md:text-[10px] lg:text-[11px]" title={access}>
-            {access}
-          </span>
-        ),
-      },
-      {
-        label: 'IP',
-        icon: FiGlobe,
-        value: (
-          <span className="block wrap-break-word font-mono" title={ip}>
-            {ip}
-          </span>
-        ),
-      },
-    ],
-    [
-      {
-        label: 'Portal',
-        icon: FiRadio,
-        value: <PortalIcon tone={portalPresentation.tone} title={portalPresentation.description} />,
-        valueClassName: 'text-base',
-      },
-      {
-        label: 'Levantó por última vez',
-        icon: FiClock,
-        value: (
-          <span className="block wrap-break-word tabular-nums text-[10px] md:text-[10px] lg:text-[11px]" title={startTime}>
-            {startTime}
-          </span>
-        ),
-      },
-    ],
-  ]
+  const statsById: Record<string, CapaControlStatItem> = {
+    'capa-access': {
+      label: 'Access',
+      icon: IoGitNetworkOutline,
+      value: (
+        <span className="block wrap-break-word font-mono text-[10px] md:text-[10px] lg:text-[11px]" title={access}>
+          {access}
+        </span>
+      ),
+    },
+    'capa-ip': {
+      label: 'IP',
+      icon: FiGlobe,
+      value: (
+        <span className="block wrap-break-word font-mono" title={ip}>
+          {ip}
+        </span>
+      ),
+    },
+    'capa-portal': {
+      label: 'Portal',
+      icon: FiRadio,
+      value: <PortalIcon tone={portalPresentation.tone} title={portalPresentation.description} />,
+      valueClassName: 'text-base',
+    },
+    'capa-levanto': {
+      label: 'Levantó por última vez',
+      icon: FiClock,
+      value: (
+        <span className="block wrap-break-word tabular-nums text-[10px] md:text-[10px] lg:text-[11px]" title={startTime}>
+          {startTime}
+        </span>
+      ),
+    },
+  }
+
+  const order = visiblePrefIds?.length ? visiblePrefIds : DEFAULT_CAPA_PREF_IDS
+  const stats = order.flatMap((id) => {
+    const stat = statsById[id]
+    return stat ? [stat] : []
+  })
+  const pairs: CapaControlStatItem[][] = []
+  for (let i = 0; i < stats.length; i += 2) {
+    pairs.push(stats.slice(i, i + 2))
+  }
 
   const isEmpty =
     !loading &&
