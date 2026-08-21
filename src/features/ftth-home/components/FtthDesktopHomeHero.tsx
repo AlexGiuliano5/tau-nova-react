@@ -18,15 +18,16 @@ import {
   resolveNetworkElementSearchHref,
 } from '@/features/ftth/lib/network-element-search'
 import type { RecentNetworkElementSearch } from '@/features/ftth/types/recent-search'
+import { DARK_HEADER_BRAND_ICON_HREF, LIGHT_HEADER_BRAND_ICON_HREF } from '@/shared/lib/theme'
 
 const recentSearchChipClassName =
-  'inline-flex shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-sky-300/40 bg-(--card) px-3 py-1.5 text-left transition-colors hover:border-sky-400/60 hover:bg-sky-50 dark:border-violet-400/30 dark:bg-[rgb(26_22_44)] dark:hover:border-violet-300/50 dark:hover:bg-[rgb(38_32_58)]'
+  'inline-flex shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-sky-300/40 bg-(--card) px-3 py-1.5 text-left transition-colors hover:border-sky-400/60 hover:bg-sky-50 dark:border-sky-400/30 dark:bg-[rgb(12_22_38)] dark:hover:border-sky-300/50 dark:hover:bg-[rgb(18_36_56)]'
 
 const homeSearchSubmitButtonClassName =
-  'inline-flex h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0d9488_0%,#0ea5e9_50%,#6366f1_100%)] px-7 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(14,165,233,0.25)] transition-all hover:-translate-y-px hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-[170px] dark:bg-[linear-gradient(135deg,#7c3aed_0%,#6d28d9_42%,#5b21b6_88%,#4c1d95_100%)] dark:text-white dark:shadow-[0_16px_40px_rgba(124,58,237,0.38)]'
+  'inline-flex h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0d9488_0%,#0ea5e9_50%,#0284c7_100%)] px-7 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(14,165,233,0.25)] transition-all hover:-translate-y-px hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-[170px] dark:bg-[linear-gradient(135deg,#0284c7_0%,#0076c7_42%,#0369a1_88%,#075985_100%)] dark:text-white dark:shadow-[0_16px_40px_rgba(2,132,199,0.38)]'
 
 const recentSearchNavButtonClassName =
-  'inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-sky-300/40 bg-(--card) text-sky-800 transition-colors hover:border-sky-400/60 hover:bg-sky-50 disabled:pointer-events-none disabled:opacity-30 dark:border-violet-400/30 dark:bg-[rgb(26_22_44)] dark:text-violet-100 dark:hover:border-violet-300/50 dark:hover:bg-[rgb(38_32_58)]'
+  'inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-sky-300/40 bg-(--card) text-sky-800 transition-colors hover:border-sky-400/60 hover:bg-sky-50 disabled:pointer-events-none disabled:opacity-30 dark:border-sky-400/30 dark:bg-[rgb(12_22_38)] dark:text-sky-100 dark:hover:border-sky-300/50 dark:hover:bg-[rgb(18_36_56)]'
 
 function preventCarouselFocusScroll(event: MouseEvent<HTMLButtonElement>) {
   event.preventDefault()
@@ -88,19 +89,19 @@ export function FtthDesktopHomeHero({
   return (
     <section className="ftth-home-hero relative hidden min-h-0 md:flex md:h-full md:min-h-0 md:flex-1 md:flex-col md:overflow-hidden">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-0 bg-[linear-gradient(165deg,#f4f9fc_0%,#eef6fb_45%,#e8f2f8_100%)] dark:bg-[linear-gradient(165deg,#1a1033_0%,#100a1c_42%,#080612_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_18%,rgba(14,165,233,0.12),transparent_58%)] dark:bg-[radial-gradient(90%_70%_at_50%_12%,rgba(167,139,250,0.22),transparent_54%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_92%_42%,rgba(99,102,241,0.08),transparent_58%)] dark:bg-[radial-gradient(72%_58%_at_86%_36%,rgba(160,122,248,0.26),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(15,118,110,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(15,118,110,0.07)_1px,transparent_1px)] bg-size-[44px_44px] opacity-[0.55] dark:bg-[linear-gradient(rgba(196,181,253,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(196,181,253,0.09)_1px,transparent_1px)] dark:opacity-[0.32]" />
-        <div className="absolute -left-44 top-[46%] h-[400px] w-[400px] -translate-y-1/2 rounded-full border border-sky-200/22 dark:border-violet-400/14" />
-        <div className="absolute -left-20 top-[18%] h-[300px] w-[300px] rounded-full border border-sky-300/20 dark:border-violet-300/12" />
-        <div className="absolute -left-8 bottom-[12%] h-[190px] w-[190px] rounded-full border border-sky-200/30 dark:border-violet-200/11" />
-        <div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full border border-sky-300/25 dark:border-violet-400/18" />
-        <div className="absolute -right-24 top-24 h-[380px] w-[380px] rounded-full border border-sky-200/30 dark:border-violet-300/14" />
-        <div className="absolute -right-10 top-40 h-[240px] w-[240px] rounded-full border border-sky-200/35 dark:border-violet-200/12" />
+        <div className="absolute inset-0 bg-[linear-gradient(165deg,#f4f9fc_0%,#eef6fb_45%,#e8f2f8_100%)] dark:bg-[linear-gradient(165deg,#0b1a2e_0%,#081422_42%,#050a12_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_18%,rgba(14,165,233,0.12),transparent_58%)] dark:bg-[radial-gradient(90%_70%_at_50%_12%,rgba(14,165,233,0.22),transparent_54%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_92%_42%,rgba(2,132,199,0.08),transparent_58%)] dark:bg-[radial-gradient(72%_58%_at_86%_36%,rgba(91,155,245,0.22),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(15,118,110,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(15,118,110,0.07)_1px,transparent_1px)] bg-size-[44px_44px] opacity-[0.55] dark:bg-[linear-gradient(rgba(125,211,252,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.09)_1px,transparent_1px)] dark:opacity-[0.32]" />
+        <div className="absolute -left-44 top-[46%] h-[400px] w-[400px] -translate-y-1/2 rounded-full border border-sky-200/22 dark:border-sky-400/14" />
+        <div className="absolute -left-20 top-[18%] h-[300px] w-[300px] rounded-full border border-sky-300/20 dark:border-sky-300/12" />
+        <div className="absolute -left-8 bottom-[12%] h-[190px] w-[190px] rounded-full border border-sky-200/30 dark:border-sky-200/11" />
+        <div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full border border-sky-300/25 dark:border-sky-400/18" />
+        <div className="absolute -right-24 top-24 h-[380px] w-[380px] rounded-full border border-sky-200/30 dark:border-sky-300/14" />
+        <div className="absolute -right-10 top-40 h-[240px] w-[240px] rounded-full border border-sky-200/35 dark:border-sky-200/12" />
       </div>
 
-      <div className="relative z-10 flex h-full min-h-0 flex-1 flex-col overflow-hidden border-x border-t border-black/10 text-(--text-primary) shadow-[0_12px_40px_rgb(8_47_73/0.08)] md:border-b-0 dark:border-violet-400/15 dark:shadow-[0_25px_70px_rgb(0_0_0/0.55),0_0_80px_rgb(124_58_237/0.08)]">
+      <div className="relative z-10 flex h-full min-h-0 flex-1 flex-col overflow-hidden border-x border-t border-black/10 text-(--text-primary) shadow-[0_12px_40px_rgb(8_47_73/0.08)] md:border-b-0 dark:border-sky-400/15 dark:shadow-[0_25px_70px_rgb(0_0_0/0.55),0_0_80px_rgb(2_132_199/0.08)]">
         <div className="relative z-10 flex min-h-0 flex-1 flex-col px-6 py-5 lg:px-10 lg:py-6">
           <div className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden">
             <div className="translate-y-0 lg:-translate-y-2 xl:-translate-y-6 2xl:-translate-y-10">
@@ -108,25 +109,25 @@ export function FtthDesktopHomeHero({
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="h-14 w-14 shrink-0 sm:h-16 sm:w-16">
                     <img
-                      src="/imgs/tau-icon-light.png"
+                      src={LIGHT_HEADER_BRAND_ICON_HREF}
                       alt=""
                       className="h-full w-full rounded-xl object-cover shadow-[0_8px_22px_rgba(14,165,233,0.2)] dark:hidden"
                       aria-hidden
                     />
                     <img
-                      src="/imgs/tau-icon-dark.png"
+                      src={DARK_HEADER_BRAND_ICON_HREF}
                       alt=""
-                      className="hidden h-full w-full rounded-xl object-cover shadow-[0_12px_26px_rgba(124,58,237,0.35)] dark:block"
+                      className="hidden h-full w-full rounded-xl object-cover shadow-[0_12px_26px_rgba(2,132,199,0.35)] dark:block"
                       aria-hidden
                     />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] font-semibold tracking-[0.2em] text-sky-800/85 uppercase dark:text-violet-200/92">
+                    <p className="text-[10px] font-semibold tracking-[0.2em] text-sky-800/85 uppercase dark:text-sky-200/92">
                       Home FTTH
                     </p>
                     <h1 className="mt-1 text-3xl leading-none font-semibold tracking-tight sm:text-4xl lg:text-[2.65rem]">
                       <span className="text-(--text-primary)">TAU</span>{' '}
-                      <span className="bg-[linear-gradient(90deg,#0e7490_0%,#6366f1_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(90deg,#ddd6fe_0%,#c4b5fd_38%,#a78bfa_100%)]">
+                      <span className="bg-[linear-gradient(90deg,#0e7490_0%,#0284c7_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(90deg,#bae6fd_0%,#7dd3fc_38%,#5b9bf5_100%)]">
                         Nova
                       </span>
                     </h1>
@@ -142,15 +143,15 @@ export function FtthDesktopHomeHero({
               <form onSubmit={onSubmit} className="mx-auto mt-5 w-full max-w-4xl md:mt-6">
                 <label
                   htmlFor={inputId}
-                  className="text-[11px] font-semibold tracking-[0.14em] text-sky-800/90 dark:text-violet-200/95"
+                  className="text-[11px] font-semibold tracking-[0.14em] text-sky-800/90 dark:text-sky-200/95"
                 >
                   Búsqueda Rápida
                 </label>
 
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-                  <div className="relative flex min-h-[52px] flex-1 items-center gap-2 rounded-2xl border border-sky-200/60 bg-(--card) px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-md sm:px-4 dark:border-violet-400/18 dark:bg-[rgb(22_18_38/0.88)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_0_1px_rgba(124,58,237,0.08)]">
+                  <div className="relative flex min-h-[52px] flex-1 items-center gap-2 rounded-2xl border border-sky-200/60 bg-(--card) px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-md sm:px-4 dark:border-sky-400/18 dark:bg-[rgb(12_22_38/0.88)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_0_1px_rgba(2,132,199,0.08)]">
                     <IoSearch
-                      className="shrink-0 text-sky-700/70 dark:text-violet-200/85"
+                      className="shrink-0 text-sky-700/70 dark:text-sky-200/85"
                       size={18}
                       aria-hidden
                     />
@@ -328,16 +329,16 @@ function RecentSearchesCarousel({
                 className={recentSearchChipClassName}
               >
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="text-xs font-semibold text-sky-900 dark:text-violet-100">
+                  <span className="text-xs font-semibold text-sky-900 dark:text-sky-100">
                     {search.value}
                   </span>
                   <span
-                    className="text-[11px] font-semibold text-sky-800/55 dark:text-violet-100/45"
+                    className="text-[11px] font-semibold text-sky-800/55 dark:text-sky-100/45"
                     aria-hidden
                   >
                     ·
                   </span>
-                  <span className="text-[11px] font-semibold text-sky-800/70 dark:text-violet-100/65">
+                  <span className="text-[11px] font-semibold text-sky-800/70 dark:text-sky-100/65">
                     {formatRecentSearchDate(search.updatedAt, referenceNowMs)}
                   </span>
                 </span>

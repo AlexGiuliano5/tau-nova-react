@@ -7,8 +7,11 @@ export type PlacaPuertoEstadoResult =
   | { ok: true; severity: SlotPortSeverity }
   | { ok: false }
 
-const cache = new Map<string, SlotPortSeverity | null>()
-const inflight = new Map<string, Promise<SlotPortSeverity | null>>()
+export function slotPortSeverityLabel(severity: SlotPortSeverity): string {
+  if (severity === 'warning') return 'Advertencia'
+  if (severity === 'critical') return 'Crítico'
+  return 'Óptimo'
+}
 
 export async function fetchPlacaPuertoEstado(
   olt: string,
@@ -22,29 +25,7 @@ export async function fetchPlacaPuertoEstado(
   // Misma regla que tau-nova: placa 1-based sobre columnas de slotportarray.
   if (placa < 1) return { ok: false }
 
-  const key = `${olt.trim().toUpperCase()}|${placa}|${puerto}`
-  if (cache.has(key)) {
-    const cached = cache.get(key)
-    return cached ? { ok: true, severity: cached } : { ok: false }
-  }
-
-  const existing = inflight.get(key)
-  if (existing) {
-    const severity = await existing
-    return severity ? { ok: true, severity } : { ok: false }
-  }
-
-  const pending = loadSeverity(olt.trim(), placa, puerto, signal)
-    .then((severity) => {
-      cache.set(key, severity)
-      return severity
-    })
-    .finally(() => {
-      inflight.delete(key)
-    })
-
-  inflight.set(key, pending)
-  const severity = await pending
+  const severity = await loadSeverity(olt.trim(), placa, puerto, signal)
   return severity ? { ok: true, severity } : { ok: false }
 }
 
@@ -74,7 +55,8 @@ async function loadSeverity(
     const cell = matrix[rowIndex]?.[placa - 1]
     if (!cell) return null
     return mapSeverity(cell.severity)
-  } catch {
+  } catch (error) {
+    if (signal?.aborted) throw error
     return null
   }
 }

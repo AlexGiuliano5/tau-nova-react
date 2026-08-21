@@ -416,8 +416,8 @@ function TopologyCardNode({
         width={width}
         height={height}
         rx={12}
-        className="fill-cyan-100/70 dark:fill-violet-500/10"
-        stroke={selected ? "rgb(99 102 241 / 0.95)" : "rgb(148 163 184 / 0.35)"}
+        className="fill-cyan-100/70 dark:fill-sky-500/10"
+        stroke={selected ? "rgb(2 132 199 / 0.95)" : "rgb(148 163 184 / 0.35)"}
         strokeWidth={selected ? 1.8 : 1.1}
       />
       <DesktopNodeTypeGlyph type={nodeType} />
@@ -448,7 +448,7 @@ function DesktopNodeTypeGlyph({ type }: { type: PortTreeNodeType }) {
     return (
       <polygon
         points="12,12.5 20,25.5 4,25.5"
-        className="fill-sky-600 dark:fill-violet-300 dark:stroke-white/60"
+        className="fill-sky-600 dark:fill-sky-300 dark:stroke-white/60"
         strokeWidth={0.8}
       />
     );
@@ -461,7 +461,7 @@ function DesktopNodeTypeGlyph({ type }: { type: PortTreeNodeType }) {
         width={12}
         height={12}
         rx={2}
-        className="fill-sky-300 stroke-sky-600 dark:fill-violet-800 dark:stroke-violet-200"
+        className="fill-sky-300 stroke-sky-600 dark:fill-sky-800 dark:stroke-sky-200"
         strokeWidth={1.1}
       />
     );
@@ -471,7 +471,7 @@ function DesktopNodeTypeGlyph({ type }: { type: PortTreeNodeType }) {
       cx={12}
       cy={21}
       r={5}
-      className="fill-sky-600 dark:fill-violet-300 dark:stroke-white/60"
+      className="fill-sky-600 dark:fill-sky-300 dark:stroke-white/60"
       strokeWidth={0.8}
     />
   );

@@ -17,7 +17,7 @@ const desktopNavLinkClassName =
   'inline-flex h-10 items-center rounded-md px-4 text-sm leading-none font-semibold text-(--text-secondary) transition-colors hover:bg-black/5 hover:text-(--text-primary) dark:text-(--text-primary)/80 dark:hover:bg-white/8 dark:hover:text-(--text-primary)'
 
 const wordmarkGradient =
-  'bg-[linear-gradient(90deg,#0e7490_0%,#6366f1_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(90deg,#ddd6fe_0%,#c4b5fd_38%,#a78bfa_100%)]'
+  'bg-[linear-gradient(90deg,#0e7490_0%,#0284c7_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(90deg,#bae6fd_0%,#7dd3fc_38%,#5b9bf5_100%)]'
 
 function BrandIcon({ sizeClassName }: { sizeClassName: string }) {
   return (

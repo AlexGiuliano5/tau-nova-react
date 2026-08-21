@@ -234,6 +234,20 @@ function BreadcrumbCopyButton({ value }: { value: string }) {
   )
 }
 
+function LookerMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className}>
+      <line x1="8" y1="10.6" x2="11.4" y2="15.8" stroke="#FBBC04" strokeWidth="1.6" />
+      <line x1="8.4" y1="7.6" x2="10.8" y2="5.6" stroke="#EA4335" strokeWidth="1.6" />
+      <line x1="14" y1="5.2" x2="17.4" y2="6.8" stroke="#34A853" strokeWidth="1.5" />
+      <circle cx="12" cy="18.2" r="4.35" fill="none" stroke="#4285F4" strokeWidth="2.2" />
+      <circle cx="7.2" cy="10.2" r="3.2" fill="#FBBC04" />
+      <circle cx="11.1" cy="4.5" r="3.2" fill="#EA4335" />
+      <circle cx="18.6" cy="7.3" r="2.1" fill="#34A853" />
+    </svg>
+  )
+}
+
 function BreadcrumbItemContent({
   item,
   isLast,
@@ -261,7 +275,7 @@ export function FtthBreadcrumb({
   showLinkIndicator = false,
   desktopItems = [],
   lookerHref = null,
-  lookerTitle = 'Histórico de Indisponibilidad',
+  lookerTitle = 'Informes',
   placaPuertoContext = null,
   placaPuertoEstadoSlot = null,
   mobileEstadoSlot = null,
@@ -379,11 +393,12 @@ export function FtthBreadcrumb({
               href={lookerHref}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={lookerTitle}
+              aria-label="Looker"
               title={lookerTitle}
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#93d6ff] bg-[#dff3ff] text-[#1677b3] transition-colors hover:bg-[#ccecff] dark:border-[#7f63ff] dark:bg-[#3e2a7a] dark:text-[#d9ccff] dark:hover:bg-[#4a3392]"
+              className="inline-flex h-7 items-center gap-1.5 rounded-full border border-[#93d6ff] bg-[#dff3ff] px-2.5 text-[12px] font-semibold text-[#1677b3] transition-colors hover:bg-[#ccecff] dark:border-[#5b9bf5] dark:bg-[#163a5c] dark:text-[#ccecff] dark:hover:bg-[#1e4a70]"
             >
-              <IoOpenOutline size={16} className="block" />
+              <LookerMark className="block h-4.5 w-4.5 shrink-0" />
+              Looker
             </a>
           </div>
         ) : null}

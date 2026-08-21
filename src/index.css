@@ -149,7 +149,7 @@ html.dm .ont-detail-tab-active {
 html.dm .historic-line-chart {
   --chart-brush-track: rgb(255 255 255 / 0.055);
   --chart-brush-rim: rgb(255 255 255 / 0.1);
-  --chart-brush-window: rgb(160 122 248 / 0.18);
+  --chart-brush-window: rgb(2 132 199 / 0.18);
   --chart-brush-handle-fill: rgb(255 255 255 / 0.16);
   --chart-brush-handle-stroke: rgb(255 255 255 / 0.22);
 }

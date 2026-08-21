@@ -14,6 +14,7 @@ import { OntInfoCard, type OntInfoDetails } from '@/features/ont/ui/OntInfoCard'
 import { OntInfoCardLoading } from '@/features/ont/ui/OntInfoCardLoadings'
 import { DEFAULT_HISTORIC_CHART_DAYS } from '@/features/ont/api/comparison-historic'
 import { useOntHistoricSeriesQuery } from '@/features/ont/hooks/use-ont-historic-series-query'
+import { usePlacaPuertoEstadoQuery } from '@/features/ont/hooks/use-placa-puerto-estado-query'
 import { buildHistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
 
 interface Props {
@@ -29,6 +30,13 @@ export function DetailsCardClient({ ont, context }: Props) {
 
   const isInfraco = context.mode === 'infraco'
   const oltId = context.olt?.trim() ?? ''
+  const placa = Number.parseInt(context.slot, 10)
+  const puerto = Number.parseInt(context.port, 10)
+  const portEstadoQuery = usePlacaPuertoEstadoQuery(
+    isInfraco ? '' : oltId,
+    Number.isFinite(placa) ? placa : null,
+    Number.isFinite(puerto) ? puerto : null,
+  )
   const historicQuery = useOntHistoricSeriesQuery({
     ontSerial: ont,
     oltId,
@@ -116,6 +124,7 @@ export function DetailsCardClient({ ont, context }: Props) {
       showBirthCertificate={!isInfraco}
       statusHistory={statusHistory}
       statusHistoryLoading={historicQuery.isFetching && !statusHistory}
+      portSeverity={isInfraco ? null : (portEstadoQuery.data ?? null)}
     />
   )
 }

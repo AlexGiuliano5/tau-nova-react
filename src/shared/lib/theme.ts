@@ -5,7 +5,7 @@ export const DARK_THEME_CLASS = 'dm'
 export const DEFAULT_THEME_MODE: ThemeMode = 'light'
 
 export const LIGHT_FAVICON_HREF = '/imgs/tau-favicon-light-round.ico'
-export const DARK_FAVICON_HREF = '/imgs/tau-favicon-dark-round.ico'
+export const DARK_FAVICON_HREF = '/imgs/tau-favicon-dark-round.png'
 export const LIGHT_APPLE_TOUCH_ICON_HREF = '/imgs/tau-favicon-light-round.png'
 export const DARK_APPLE_TOUCH_ICON_HREF = '/imgs/tau-favicon-dark-round.png'
 export const LIGHT_HEADER_BRAND_ICON_HREF = '/imgs/tau-favicon-light-round.png'
@@ -36,10 +36,15 @@ export function getAppleTouchIconHref(isDarkMode: boolean): string {
   return isDarkMode ? DARK_APPLE_TOUCH_ICON_HREF : LIGHT_APPLE_TOUCH_ICON_HREF
 }
 
+function getFaviconLinkType(href: string): 'image/png' | 'image/x-icon' {
+  return href.includes('.png') ? 'image/png' : 'image/x-icon'
+}
+
 export function setFaviconByTheme(isDarkMode: boolean): void {
   const cacheToken = isDarkMode ? 'dark' : 'light'
   const nextFaviconHref = `${getThemeFaviconHref(isDarkMode)}?theme=${cacheToken}`
   const nextAppleTouchIconHref = `${getAppleTouchIconHref(isDarkMode)}?theme=${cacheToken}`
+  const nextFaviconType = getFaviconLinkType(nextFaviconHref)
 
   const faviconLinks = Array.from(
     document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]'),
@@ -48,13 +53,13 @@ export function setFaviconByTheme(isDarkMode: boolean): void {
   if (faviconLinks.length === 0) {
     const iconLink = document.createElement('link')
     iconLink.rel = 'icon'
-    iconLink.type = 'image/x-icon'
+    iconLink.type = nextFaviconType
     iconLink.href = nextFaviconHref
     document.head.appendChild(iconLink)
   } else {
     for (const linkElement of faviconLinks) {
       linkElement.href = nextFaviconHref
-      linkElement.type = 'image/x-icon'
+      linkElement.type = nextFaviconType
       linkElement.removeAttribute('media')
     }
   }
