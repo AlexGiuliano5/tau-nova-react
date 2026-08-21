@@ -1,4 +1,4 @@
-import { IoCheckmarkSharp, IoCloseSharp } from 'react-icons/io5'
+import clsx from 'clsx'
 
 import {
   formatOntStatusLabel,
@@ -10,61 +10,37 @@ interface Props {
   iconSize?: number
 }
 
-export function NeighborsEstadoIcon({ estadoRaw, iconSize = 15 }: Props) {
+const pillBaseClassName =
+  'inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-[11px] font-semibold leading-tight'
+
+function estadoPillClassName(status: string): string {
+  if (status === 'GOOD') {
+    return 'bg-(--tag-state-01) text-(--state-01) dark:bg-(--state-01)/20 dark:text-[#9ad48a]'
+  }
+  if (status === 'INTERRUPTED') {
+    return 'bg-(--tag-state-03) text-(--state-03) dark:bg-(--state-03)/20 dark:text-[#ff9aa0]'
+  }
+  if (status === 'REDUCED_ROBUSTNESS' || status === 'DEGRADED') {
+    return 'bg-(--tag-state-02) text-[#9a7400] dark:bg-(--state-02)/25 dark:text-[#f0c56a]'
+  }
+  return 'bg-(--card-gray) text-(--text-secondary) dark:bg-white/10 dark:text-(--text-secondary)'
+}
+
+export function NeighborsEstadoIcon({ estadoRaw }: Props) {
   const status = normalizeOntStatusKey(estadoRaw)
   const label = formatOntStatusLabel(estadoRaw)
 
-  if (!estadoRaw.trim() || estadoRaw === 'Sin Datos' || !status) {
+  if (!estadoRaw.trim() || estadoRaw === 'Sin Datos' || !status || label === 'Sin Datos') {
     return (
-      <span className="text-(--text-secondary)" title="Sin Datos">
+      <span className="text-(--divisor) dark:text-white/40" title="Sin Datos">
         Sin Datos
       </span>
     )
   }
 
-  if (status === 'GOOD') {
-    return (
-      <span title={label} className="inline-flex">
-        <IoCheckmarkSharp
-          size={iconSize}
-          className="rounded-full bg-(--state-01) p-px text-white"
-          aria-label={label}
-        />
-      </span>
-    )
-  }
-
-  if (status === 'INTERRUPTED') {
-    return (
-      <span title={label} className="inline-flex">
-        <IoCloseSharp
-          size={iconSize}
-          className="rounded-full bg-(--state-03) p-px text-white"
-          aria-label={label}
-        />
-      </span>
-    )
-  }
-
-  if (status === 'REDUCED_ROBUSTNESS' || status === 'DEGRADED') {
-    return (
-      <span title={label} className="inline-flex">
-        <IoCheckmarkSharp
-          size={iconSize}
-          className="rounded-full bg-(--state-02) p-px text-white"
-          aria-label={label}
-        />
-      </span>
-    )
-  }
-
   return (
-    <span title={label} className="inline-flex">
-      <IoCloseSharp
-        size={iconSize}
-        className="rounded-full bg-(--gray-02) p-px text-white"
-        aria-label={label}
-      />
+    <span title={label} className={clsx(pillBaseClassName, estadoPillClassName(status))}>
+      {label}
     </span>
   )
 }

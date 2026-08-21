@@ -10,7 +10,6 @@ import { OntBirthCertificateEmbedded } from '@/features/ont/ui/OntBirthCertifica
 import { OntCardEmptyBody, OntCardTitle } from '@/features/ont/ui/OntCardChrome'
 import { OntHistoricStatusBarChart } from '@/features/ont/ui/OntHistoricStatusBarChart'
 import { infoCardClassName } from '@/features/ont/ui/OntInfoCardLoadings'
-import { slotPortSeverityLabel, type SlotPortSeverity } from '@/features/ont/api/placa-puerto-estado'
 import type { HistoricStatusBarModel } from '@/features/ont/lib/historic-status-bar'
 
 export interface OntInfoDetails {
@@ -35,7 +34,6 @@ interface Props {
   showBirthCertificate?: boolean
   statusHistory?: HistoricStatusBarModel | null
   statusHistoryLoading?: boolean
-  portSeverity?: SlotPortSeverity | null
 }
 
 const fieldRowClassName = 'flex items-start justify-between gap-3'
@@ -53,7 +51,6 @@ export function OntInfoCard({
   showBirthCertificate = true,
   statusHistory = null,
   statusHistoryLoading = false,
-  portSeverity = null,
 }: Props) {
   const data = ontInfo ?? {
     ponId: 'Sin Datos',
@@ -179,14 +176,6 @@ export function OntInfoCard({
                 <span className="font-semibold">{data.puerto}</span>
               </div>
             </div>
-            {portSeverity ? (
-              <div className="flex min-w-0 flex-1 flex-col items-center px-1">
-                <span className={fieldLabelClassName}>Estado puerto</span>
-                <span className={`font-semibold ${portSeverityTextClass(portSeverity)}`}>
-                  {slotPortSeverityLabel(portSeverity)}
-                </span>
-              </div>
-            ) : null}
             {portHref ? (
               <Link to={portHref} className={portButtonClassName} title="Ir a placa y puerto">
                 <span>Placa/Puerto</span>
@@ -237,12 +226,6 @@ export function OntInfoCard({
       </div>
     </div>
   )
-}
-
-function portSeverityTextClass(severity: SlotPortSeverity): string {
-  if (severity === 'warning') return 'text-[#9a7400] dark:text-(--card-yellow)'
-  if (severity === 'critical') return 'text-[#cc2e26] dark:text-(--card-red)'
-  return 'text-[#1f8a3b] dark:text-(--card-green)'
 }
 
 function formatVendor(vendor: string): string {

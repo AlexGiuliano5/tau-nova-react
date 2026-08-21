@@ -28,6 +28,9 @@ interface Props {
   showOnlySelected?: boolean
   onToggleSelectionFilter?: () => void
   onOpenColumnOrder?: () => void
+  issueCounts?: { interrupted: number; degraded: number }
+  activeIssueFilter?: 'interrupted' | 'degraded' | null
+  onIssueFilter?: (kind: 'interrupted' | 'degraded') => void
 }
 
 export function NeighborsTableToolbar({
@@ -52,6 +55,9 @@ export function NeighborsTableToolbar({
   showOnlySelected = false,
   onToggleSelectionFilter,
   onOpenColumnOrder,
+  issueCounts,
+  activeIssueFilter = null,
+  onIssueFilter,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -145,57 +151,141 @@ export function NeighborsTableToolbar({
           ) : null}
         </div>
 
-        <div ref={wrapRef} className="relative">
-          <button
-            type="button"
-            className={clsx(
-              toolbarBtnBase,
-              'border-(--table-stroke) bg-(--card) text-(--text-primary) hover:bg-(--table-header) dark:hover:bg-white/5',
-            )}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            Acciones
-            <IoEllipsisVertical className="ml-1.5" size={14} aria-hidden />
-          </button>
-          {menuOpen ? (
-            <div
-              role="menu"
-              className="absolute right-0 top-[calc(100%+0.35rem)] z-30 min-w-[220px] rounded-xl border border-black/10 bg-(--card) p-1.5 shadow-[0_14px_28px_rgba(15,23,42,0.14)] dark:border-white/10"
+        <div className="flex min-w-0 items-center gap-3">
+          <IssueSummary
+            counts={issueCounts}
+            activeKind={activeIssueFilter}
+            onSelect={onIssueFilter}
+          />
+          <div ref={wrapRef} className="relative">
+            <button
+              type="button"
+              className={clsx(
+                toolbarBtnBase,
+                'border-(--table-stroke) bg-(--card) text-(--text-primary) hover:bg-(--table-header) dark:hover:bg-white/5',
+              )}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
             >
-              <MenuItem
-                disabled={!onToggleSelectionFilter || !canToggleSelection}
-                onClick={() => {
-                  onToggleSelectionFilter?.()
-                  setMenuOpen(false)
-                }}
+              Acciones
+              <IoEllipsisVertical className="ml-1.5" size={14} aria-hidden />
+            </button>
+            {menuOpen ? (
+              <div
+                role="menu"
+                className="absolute right-0 top-[calc(100%+0.35rem)] z-30 min-w-[220px] rounded-xl border border-black/10 bg-(--card) p-1.5 shadow-[0_14px_28px_rgba(15,23,42,0.14)] dark:border-white/10"
               >
-                {showOnlySelected ? 'Mostrar todos' : 'Seleccionar registros'}
-              </MenuItem>
-              <MenuItem
-                disabled={!onToggleFilters}
-                onClick={() => {
-                  onToggleFilters?.()
-                  setMenuOpen(false)
-                }}
-              >
-                {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-              </MenuItem>
-              <MenuItem
-                disabled={!onOpenColumnOrder}
-                onClick={() => {
-                  onOpenColumnOrder?.()
-                  setMenuOpen(false)
-                }}
-              >
-                Configurar columnas
-              </MenuItem>
-            </div>
-          ) : null}
+                <MenuItem
+                  disabled={!onToggleSelectionFilter || !canToggleSelection}
+                  onClick={() => {
+                    onToggleSelectionFilter?.()
+                    setMenuOpen(false)
+                  }}
+                >
+                  {showOnlySelected ? 'Mostrar todos' : 'Seleccionar registros'}
+                </MenuItem>
+                <MenuItem
+                  disabled={!onToggleFilters}
+                  onClick={() => {
+                    onToggleFilters?.()
+                    setMenuOpen(false)
+                  }}
+                >
+                  {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+                </MenuItem>
+                <MenuItem
+                  disabled={!onOpenColumnOrder}
+                  onClick={() => {
+                    onOpenColumnOrder?.()
+                    setMenuOpen(false)
+                  }}
+                >
+                  Configurar columnas
+                </MenuItem>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
+  )
+}
+
+const issueChipBase =
+  'inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-[11px] font-semibold leading-tight'
+
+function IssueSummary({
+  counts,
+  activeKind,
+  onSelect,
+}: {
+  counts?: { interrupted: number; degraded: number }
+  activeKind?: 'interrupted' | 'degraded' | null
+  onSelect?: (kind: 'interrupted' | 'degraded') => void
+}) {
+  if (!counts) return null
+  if (counts.interrupted <= 0 && counts.degraded <= 0) return null
+
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-1.5">
+      {counts.degraded > 0 ? (
+        <IssueChip
+          kind="degraded"
+          pressed={activeKind === 'degraded'}
+          onSelect={onSelect}
+          className="bg-(--tag-state-02) text-[#9a7400] dark:bg-(--state-02)/25 dark:text-[#f0c56a]"
+        >
+          {counts.degraded} PO {counts.degraded === 1 ? 'advertencia' : 'advertencias'}
+        </IssueChip>
+      ) : null}
+      {counts.degraded > 0 && counts.interrupted > 0 ? (
+        <span className="text-[11px] font-semibold text-(--text-secondary)" aria-hidden>
+          |
+        </span>
+      ) : null}
+      {counts.interrupted > 0 ? (
+        <IssueChip
+          kind="interrupted"
+          pressed={activeKind === 'interrupted'}
+          onSelect={onSelect}
+          className="bg-(--tag-state-03) text-(--state-03) dark:bg-(--state-03)/20 dark:text-[#ff9aa0]"
+        >
+          {counts.interrupted} PO {counts.interrupted === 1 ? 'crítica' : 'críticas'}
+        </IssueChip>
+      ) : null}
+    </div>
+  )
+}
+
+function IssueChip({
+  kind,
+  pressed,
+  onSelect,
+  className,
+  children,
+}: {
+  kind: 'interrupted' | 'degraded'
+  pressed: boolean
+  onSelect?: (kind: 'interrupted' | 'degraded') => void
+  className: string
+  children: string
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      title={pressed ? 'Mostrar todos' : 'Mostrar solo estas filas'}
+      onClick={() => onSelect?.(kind)}
+      className={clsx(
+        issueChipBase,
+        'cursor-pointer transition-[box-shadow,filter] hover:brightness-[0.97] dark:hover:brightness-110',
+        pressed && 'ring-2 ring-current/35',
+        className,
+      )}
+    >
+      {children}
+    </button>
   )
 }
 

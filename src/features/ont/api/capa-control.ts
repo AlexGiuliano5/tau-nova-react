@@ -8,6 +8,7 @@ export interface BffOntCapaControlData {
   ipAddress: string
   portal: string | null
   startTime: string
+  hdmSip: string
   serial: string
   error: boolean
   message: string
@@ -74,6 +75,10 @@ function extractCapaControlData(raw: unknown): BffOntCapaControlData | null {
     ipAddress: toStringOrEmpty(payload.ipAddress),
     portal,
     startTime: toStringOrEmpty(payload.startTime),
+    hdmSip:
+      toStringOrEmpty(payload.hdmSip) ||
+      toStringOrEmpty(payload.sip) ||
+      toStringOrEmpty(payload.sipIp),
     serial,
     error: payload.error === true,
     message: toStringOrEmpty(payload.message),

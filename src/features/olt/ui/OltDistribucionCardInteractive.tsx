@@ -8,8 +8,7 @@ import { type OltSlotPortCellView, SlotPortSeverity } from '@/features/olt/types
 
 import {
   OLT_DISTRIBUCION_COLS_PER_PAGE,
-  OltDistribucionCarousel,
-  type OltDistribucionViewMode
+  OltDistribucionCarousel
 } from './OltDistribucionCarousel';
 
 interface Props {
@@ -19,18 +18,6 @@ interface Props {
   desktopFullView?: boolean;
 }
 
-const _viewModeGroupClass =
-  'inline-flex shrink-0 rounded-lg border border-(--table-stroke) bg-(--table-header) p-0.5 dark:border-white/15 dark:bg-(--table-content)/80';
-
-const _viewModeOptionClass =
-  'cursor-pointer rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors sm:px-3 sm:text-xs md:text-[10px]';
-
-const _viewModeActiveClass =
-  'bg-(--card) text-(--text-primary) shadow-[0_1px_3px_rgb(15_23_42/0.08)] dark:bg-(--secondary)/25 dark:text-white dark:shadow-[0_1px_4px_rgb(0_0_0/0.35)]';
-
-const _viewModeIdleClass =
-  'text-(--text-secondary) hover:text-(--text-primary) dark:text-white/70 dark:hover:text-white';
-
 export function OltDistribucionCardInteractive({
   model,
   oltRouteParam,
@@ -39,7 +26,6 @@ export function OltDistribucionCardInteractive({
   const isDesktop = useMdUp();
   const useFullDesktopView = desktopFullView && isDesktop;
   const [page, setPage] = useState(0);
-  const [viewMode, setViewMode] = useState<OltDistribucionViewMode>('realistic');
   const totalSlots = Math.max(model.totalSlots, 1);
 
   const startCol = page * OLT_DISTRIBUCION_COLS_PER_PAGE;
@@ -58,7 +44,6 @@ export function OltDistribucionCardInteractive({
       hideIndicators
       disableSwipe
       fitToContainer
-      viewMode={viewMode}
     />
   ) : (
     <>
@@ -73,38 +58,16 @@ export function OltDistribucionCardInteractive({
         oltRouteParam={oltRouteParam}
         page={page}
         onPageChange={setPage}
-        viewMode={viewMode}
       />
     </>
   );
 
   return (
-    <div
-      className={`flex flex-col gap-3 md:gap-2.5 ${viewMode === 'realistic' ? 'min-h-0 w-full flex-1' : ''}`}
-    >
-      <header className="flex flex-wrap items-center justify-between gap-2 gap-y-2">
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 md:gap-2.5">
+      <header>
         <h2 className="text-lg font-semibold leading-tight tracking-tight md:text-[1.05rem]">
           Distribución OLT
         </h2>
-        <fieldset className={`${_viewModeGroupClass} border-0 p-0`}>
-          <legend className="sr-only">Modo de visualización del chasis</legend>
-          <button
-            type="button"
-            aria-pressed={viewMode === 'abstract'}
-            className={`${_viewModeOptionClass} ${viewMode === 'abstract' ? _viewModeActiveClass : _viewModeIdleClass}`}
-            onClick={() => setViewMode('abstract')}
-          >
-            Esquema
-          </button>
-          <button
-            type="button"
-            aria-pressed={viewMode === 'realistic'}
-            className={`${_viewModeOptionClass} ${viewMode === 'realistic' ? _viewModeActiveClass : _viewModeIdleClass}`}
-            onClick={() => setViewMode('realistic')}
-          >
-            Chasis
-          </button>
-        </fieldset>
       </header>
       {carousel}
     </div>

@@ -8,16 +8,13 @@ import { FtthDataIssueNotice } from '@/features/ftth/components/FtthDataIssueNot
 import { NeighborsEstadoIcon } from '@/features/ont/components/NeighborsEstadoIcon'
 import {
   getFtthOntGridColumnKind,
-  getOltRxCellClass,
-  getOltTxCellClass,
-  getOntRxCellClass,
   OltRxMetricSpan,
   OltTxMetricSpan,
   OntRxMetricSpan,
-  resolveMetricValueForStyling,
   formatMetricDisplayValue,
 } from '@/features/ont/lib/ftth-grid-metric-styles'
 import { formatOntSerial, normalizeOntId } from '@/features/ont/lib/ont-serial'
+import { ontStatusRowClassName } from '@/features/ont/lib/ont-status-labels'
 import { ONT_NEIGHBORS_TABLE_PREVIEW_CLASSNAME } from '@/features/ont/ui/table/tableClassNames'
 import {
   FTTH_ONT_GRID_PREVIEW_MAX_COLUMNS,
@@ -112,6 +109,7 @@ export function OltOntMetricsGridPreview({ model }: Props) {
           setSortField(event.sortField)
           setSortOrder(event.sortOrder as 1 | -1 | 0)
         }}
+        rowClassName={(row) => ontStatusRowClassName(String((row as PreviewRow).__estado ?? ''))}
       >
         {previewHeaders.map((header, j) => {
           const kind = columnKinds[j]
@@ -127,15 +125,7 @@ export function OltOntMetricsGridPreview({ model }: Props) {
               sortable
               sortField={sortKey}
               headerClassName="text-center"
-              bodyClassName={(row) => {
-                const r = row as PreviewRow
-                const v = String(r[valueField] ?? '')
-                const styleValue = resolveMetricValueForStyling(v, r.__estado)
-                if (kind === 'ontRx') return `text-center ${getOntRxCellClass(styleValue)}`.trim()
-                if (kind === 'oltRx') return `text-center ${getOltRxCellClass(styleValue)}`.trim()
-                if (kind === 'oltTx') return `text-center ${getOltTxCellClass(styleValue)}`.trim()
-                return 'text-center'
-              }}
+              bodyClassName="text-center"
               body={(row) => {
                 const r = row as PreviewRow
                 const raw = String(r[valueField] ?? '')

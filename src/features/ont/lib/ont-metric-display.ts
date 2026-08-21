@@ -3,6 +3,7 @@ export type MetricStatusColor =
   | 'card-yellow'
   | 'card-orange'
   | 'card-red'
+  | 'card-blue'
   | 'neutral'
 
 export interface OntMetricCardModel {
@@ -52,7 +53,7 @@ export function getOntMetricCardStatusColor(title: string, actual: string): Metr
   if (normalizedTitle === 'ONT RX') {
     if (value < -27) return 'card-red'
     if (value < -24.5) return 'card-orange'
-    if (value > -12) return 'card-yellow'
+    if (value > -12) return 'card-blue'
     return 'card-green'
   }
   if (normalizedTitle === 'OLT RX') {

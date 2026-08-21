@@ -28,19 +28,24 @@ import type {
   OltMetricsGridRowRecord,
 } from '@/features/olt/types/metrics-grid'
 import { NeighborsEstadoIcon } from '@/features/ont/components/NeighborsEstadoIcon'
+import { EstadoColumnFilter } from '@/features/ont/components/EstadoColumnFilter'
 import { NeighborsTableToolbar } from '@/features/ont/components/NeighborsTableToolbar'
 import { useOntTableColumnPreferences } from '@/features/ont/hooks/use-ont-table-column-preferences'
 import {
   formatMetricDisplayValue,
   getFtthOntGridColumnKind,
-  getOltRxCellClass,
-  getOltTxCellClass,
-  getOntRxCellClass,
   OltRxMetricSpan,
   OltTxMetricSpan,
   OntRxMetricSpan,
-  resolveMetricValueForStyling,
 } from '@/features/ont/lib/ftth-grid-metric-styles'
+import { countOntRxIssues, ontRxIssueKind } from '@/features/ont/lib/ont-metric-thresholds'
+import {
+  countOntStatusFilterBuckets,
+  emptyOntStatusFilterCounts,
+  ontStatusFilterBucket,
+  ontStatusRowClassName,
+  readOntStatusFilterSelection,
+} from '@/features/ont/lib/ont-status-labels'
 import { MobileColumnOrderSheet } from '@/features/ont/ui/table/MobileColumnOrderSheet'
 import {
   FTTH_DATA_TABLE_SHELL_PAGE_ROWS_CLASSNAME,
@@ -98,6 +103,30 @@ function readFilterText(entry: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function isColumnFilterActive(entry: unknown): boolean {
+  return readOntStatusFilterSelection(entry).length > 0 || Boolean(readFilterText(entry))
+}
+
+function rowMatchesOltFilters(
+  row: OltMetricsGridRowRecord,
+  filterFields: string[],
+  filters: DataTableFilterMeta,
+  skipField?: string,
+): boolean {
+  return filterFields.every((field) => {
+    if (skipField && field === skipField) return true
+    const estadoSelection = readOntStatusFilterSelection(filters[field])
+    if (estadoSelection.length > 0) {
+      return estadoSelection.includes(ontStatusFilterBucket(String(row[field] ?? '')))
+    }
+    const query = readFilterText(filters[field]).toLowerCase()
+    if (!query) return true
+    return String(row[field] ?? '')
+      .toLowerCase()
+      .includes(query)
+  })
+}
+
 export function OltOntMetricsGridFull({
   oltRouteParam,
   onPageLoadStateChange,
@@ -122,6 +151,9 @@ export function OltOntMetricsGridFull({
   const [showFilters, setShowFilters] = useState(true)
   const [selectedRows, setSelectedRows] = useState<OltMetricsGridRowRecord[]>([])
   const [showOnlySelected, setShowOnlySelected] = useState(false)
+  const [rxIssueFilter, setRxIssueFilter] = useState<'interrupted' | 'degraded' | null>(
+    null,
+  )
   const [columnSheetOpen, setColumnSheetOpen] = useState(false)
   const [pageLoadIssue, setPageLoadIssue] = useState<FtthDisplayIssue | null>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -132,6 +164,10 @@ export function OltOntMetricsGridFull({
   )
   const estadoColumnIndex = useMemo(
     () => columnNames.findIndex((name) => getFtthOntGridColumnKind(name) === 'estado'),
+    [columnNames],
+  )
+  const ontRxColumnIndex = useMemo(
+    () => columnNames.findIndex((name) => getFtthOntGridColumnKind(name) === 'ontRx'),
     [columnNames],
   )
 
@@ -282,28 +318,36 @@ export function OltOntMetricsGridFull({
   }, [loading, onPageLoadStateChange, pageLoadIssue, tableRows.length])
 
   const hasActiveFilters = useMemo(
-    () => filterFields.some((field) => Boolean(readFilterText(filters[field]))),
+    () => filterFields.some((field) => isColumnFilterActive(filters[field])),
     [filterFields, filters],
   )
 
   const clientFilteredRows = useMemo(() => {
     if (!hasActiveFilters) return tableRows
-    return tableRows.filter((row) =>
-      filterFields.every((field) => {
-        const query = readFilterText(filters[field]).toLowerCase()
-        if (!query) return true
-        return String(row[field] ?? '')
-          .toLowerCase()
-          .includes(query)
-      }),
-    )
+    return tableRows.filter((row) => rowMatchesOltFilters(row, filterFields, filters))
   }, [filterFields, filters, hasActiveFilters, tableRows])
+
+  const estadoField = estadoColumnIndex >= 0 ? `c${estadoColumnIndex}` : ''
+  const estadoCounts = useMemo(() => {
+    if (!estadoField) return emptyOntStatusFilterCounts()
+    const rows = tableRows.filter((row) =>
+      rowMatchesOltFilters(row, filterFields, filters, estadoField),
+    )
+    return countOntStatusFilterBuckets(rows.map((row) => String(row[estadoField] ?? '')))
+  }, [tableRows, filterFields, filters, estadoField])
 
   const displayRows = showOnlySelected
     ? selectedRows
     : hasActiveFilters
       ? clientFilteredRows
       : tableRows
+
+  const issueCounts = useMemo(() => {
+    if (ontRxColumnIndex < 0) return { interrupted: 0, degraded: 0 }
+    return countOntRxIssues(
+      clientFilteredRows.map((row) => String(row[`c${ontRxColumnIndex}`] ?? '')),
+    )
+  }, [clientFilteredRows, ontRxColumnIndex])
 
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize) || 1)
 
@@ -401,12 +445,33 @@ export function OltOntMetricsGridFull({
           if (showOnlySelected) {
             setShowOnlySelected(false)
             setSelectedRows([])
+            setRxIssueFilter(null)
             return
           }
           if (selectedRows.length === 0) return
           setShowOnlySelected(true)
+          setRxIssueFilter(null)
         }}
         onOpenColumnOrder={() => setColumnSheetOpen(true)}
+        issueCounts={issueCounts}
+        activeIssueFilter={rxIssueFilter}
+        onIssueFilter={(kind) => {
+          if (rxIssueFilter === kind && showOnlySelected) {
+            setShowOnlySelected(false)
+            setSelectedRows([])
+            setRxIssueFilter(null)
+            return
+          }
+          if (ontRxColumnIndex < 0) return
+          const field = `c${ontRxColumnIndex}`
+          const rows = clientFilteredRows.filter(
+            (row) => ontRxIssueKind(String(row[field] ?? '')) === kind,
+          )
+          if (rows.length === 0) return
+          setSelectedRows(rows)
+          setShowOnlySelected(true)
+          setRxIssueFilter(kind)
+        }}
       />
 
       <div className="relative -mx-1 flex min-h-0 min-w-0 flex-col pt-2 dark:bg-(--card)">
@@ -438,7 +503,7 @@ export function OltOntMetricsGridFull({
             }}
             selectionMode="multiple"
             size="small"
-            lazy={!showOnlySelected}
+            lazy
             paginator={false}
             scrollable={false}
             tableStyle={{ width: 'max-content', minWidth: '100%' }}
@@ -478,6 +543,11 @@ export function OltOntMetricsGridFull({
                   }
             }
             removableSort
+            rowClassName={(row) =>
+              ontStatusRowClassName(
+                estadoColumnIndex >= 0 ? String(row[`c${estadoColumnIndex}`] ?? '') : '',
+              )
+            }
           >
             <Column
               header="#"
@@ -493,7 +563,9 @@ export function OltOntMetricsGridFull({
             {visibleColumns.map((column) =>
               renderOltGridColumn(column, {
                 estadoColumnIndex,
+                estadoCounts,
                 enableFilters: showFilters,
+                filters,
               }),
             )}
           </DataTable>
@@ -580,11 +652,19 @@ export function OltOntMetricsGridFull({
 
 function renderOltGridColumn(
   column: { key: string; name: string; index: number; field: string },
-  options: { estadoColumnIndex: number; enableFilters: boolean },
+  options: {
+    estadoColumnIndex: number
+    estadoCounts: ReturnType<typeof emptyOntStatusFilterCounts>
+    enableFilters: boolean
+    filters: DataTableFilterMeta
+  },
 ): ReactNode {
   const metricKind = getFtthOntGridColumnKind(column.name)
   const isEstado = metricKind === 'estado'
   const isSerial = metricKind === 'serial'
+  const estadoSelection = isEstado
+    ? readOntStatusFilterSelection(options.filters[column.field])
+    : []
 
   return (
     <Column
@@ -593,9 +673,20 @@ function renderOltGridColumn(
       header={column.name}
       sortable
       filter={options.enableFilters}
-      filterPlaceholder={options.enableFilters ? 'Buscar' : undefined}
-      showFilterMenu={options.enableFilters}
-      showClearButton={options.enableFilters}
+      filterPlaceholder={options.enableFilters && !isEstado ? 'Buscar' : undefined}
+      showFilterMenu={options.enableFilters && !isEstado}
+      showClearButton={options.enableFilters && !isEstado}
+      filterElement={
+        options.enableFilters && isEstado
+          ? (filterOptions) => (
+              <EstadoColumnFilter
+                selected={estadoSelection}
+                counts={options.estadoCounts}
+                onChange={(next) => filterOptions.filterApplyCallback(next.length > 0 ? next : null)}
+              />
+            )
+          : undefined
+      }
       body={(row: OltMetricsGridRowRecord) => {
         const raw = String(row[`c${column.index}`] ?? '')
         const estadoRaw =
@@ -637,18 +728,7 @@ function renderOltGridColumn(
           </span>
         )
       }}
-      bodyClassName={(row: OltMetricsGridRowRecord) => {
-        const raw = String(row[`c${column.index}`] ?? '')
-        const estadoRaw =
-          options.estadoColumnIndex >= 0
-            ? String(row[`c${options.estadoColumnIndex}`] ?? '')
-            : ''
-        const styleValue = resolveMetricValueForStyling(raw, estadoRaw)
-        if (metricKind === 'ontRx') return `text-center ${getOntRxCellClass(styleValue)}`.trim()
-        if (metricKind === 'oltRx') return `text-center ${getOltRxCellClass(styleValue)}`.trim()
-        if (metricKind === 'oltTx') return `text-center ${getOltTxCellClass(styleValue)}`.trim()
-        return 'text-center'
-      }}
+      bodyClassName="text-center"
     />
   )
 }

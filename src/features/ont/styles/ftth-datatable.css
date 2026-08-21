@@ -247,6 +247,61 @@ html.dm .ftth-status-icon-prime-tooltip .p-tooltip-text {
   background-image: none !important;
 }
 
+/* Fila tintada según estado (las celdas pintan opaco; hay que teñir el td). */
+.app-ftth-data-table .p-datatable-tbody > tr.ftth-grid-row--interrupted:not(.p-highlight) > td,
+.app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--interrupted:not(.p-highlight)
+  > td.ftth-mobile-sticky-col,
+.app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--interrupted:not(.p-highlight)
+  > td.ftth-mobile-sticky-select {
+  background-color: color-mix(in srgb, var(--tag-state-03) 72%, var(--table-content)) !important;
+  background-image: none !important;
+}
+
+.app-ftth-data-table .p-datatable-tbody > tr.ftth-grid-row--degraded:not(.p-highlight) > td,
+.app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--degraded:not(.p-highlight)
+  > td.ftth-mobile-sticky-col,
+.app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--degraded:not(.p-highlight)
+  > td.ftth-mobile-sticky-select {
+  background-color: color-mix(in srgb, var(--tag-state-02) 78%, var(--table-content)) !important;
+  background-image: none !important;
+}
+
+.dm .app-ftth-data-table .p-datatable-tbody > tr.ftth-grid-row--interrupted:not(.p-highlight) > td,
+.dm
+  .app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--interrupted:not(.p-highlight)
+  > td.ftth-mobile-sticky-col,
+.dm
+  .app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--interrupted:not(.p-highlight)
+  > td.ftth-mobile-sticky-select {
+  background-color: color-mix(in srgb, var(--state-03) 18%, var(--table-content)) !important;
+}
+
+.dm .app-ftth-data-table .p-datatable-tbody > tr.ftth-grid-row--degraded:not(.p-highlight) > td,
+.dm
+  .app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--degraded:not(.p-highlight)
+  > td.ftth-mobile-sticky-col,
+.dm
+  .app-ftth-data-table
+  .p-datatable-tbody
+  > tr.ftth-grid-row--degraded:not(.p-highlight)
+  > td.ftth-mobile-sticky-select {
+  background-color: color-mix(in srgb, var(--state-02) 18%, var(--table-content)) !important;
+}
+
 /* Refuerzo visual: en sticky+collapse el border-right del th a veces no pinta. */
 .app-ftth-data-table .p-datatable-thead > tr > th:not(:last-child)::after {
   content: '';
@@ -589,6 +644,10 @@ html.dm .ftth-status-icon-prime-tooltip .p-tooltip-text {
   border-radius: 0.25rem;
   border: 1px solid var(--table-stroke);
   background: var(--card);
+  color: var(--primary-2);
+}
+
+.dm .app-ftth-data-table .p-column-filter-menu-button {
   color: var(--secondary);
 }
 

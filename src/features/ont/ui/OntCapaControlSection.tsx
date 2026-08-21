@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiCheck, FiClock, FiGlobe, FiRadio, FiX } from 'react-icons/fi'
+import { FiCheck, FiClock, FiGlobe, FiPhone, FiRadio, FiX } from 'react-icons/fi'
 import { IoGitNetworkOutline } from 'react-icons/io5'
 
 import {
@@ -21,11 +21,17 @@ const EMPTY = 'Sin Datos'
 interface Props {
   ont: string
   refreshToken?: number
-  /** Orden de visibilidad de capa. Sin valor = las 4 en orden default. */
+  /** Orden de visibilidad de capa. Sin valor = las 5 en orden default. */
   visiblePrefIds?: string[]
 }
 
-const DEFAULT_CAPA_PREF_IDS = ['capa-access', 'capa-ip', 'capa-portal', 'capa-levanto'] as const
+const DEFAULT_CAPA_PREF_IDS = [
+  'capa-access',
+  'capa-ip',
+  'capa-portal',
+  'capa-levanto',
+  'capa-hdm-sip',
+] as const
 
 export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }: Props) {
   const serialNumber = useMemo(() => resolveCapaControlSerialNumber(ont.trim()), [ont])
@@ -59,9 +65,10 @@ export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }:
   const access = data?.access.trim() || EMPTY
   const ip = data?.ipAddress.trim() || EMPTY
   const startTime = formatStartTime(data?.startTime)
+  const hdmSip = data?.hdmSip.trim() || EMPTY
   const portalRaw = data?.portal ?? null
   const allOtherEmpty =
-    access === EMPTY && ip === EMPTY && startTime === EMPTY
+    access === EMPTY && ip === EMPTY && startTime === EMPTY && hdmSip === EMPTY
   const portalPresentation = resolveCapaControlPortalPresentation(portalRaw, {
     allOtherFieldsEmpty: allOtherEmpty,
   })
@@ -100,6 +107,15 @@ export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }:
         </span>
       ),
     },
+    'capa-hdm-sip': {
+      label: 'HDM | SIP',
+      icon: FiPhone,
+      value: (
+        <span className="block wrap-break-word font-mono" title={hdmSip}>
+          {hdmSip}
+        </span>
+      ),
+    },
   }
 
   const order = visiblePrefIds?.length ? visiblePrefIds : DEFAULT_CAPA_PREF_IDS
@@ -107,10 +123,6 @@ export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }:
     const stat = statsById[id]
     return stat ? [stat] : []
   })
-  const pairs: CapaControlStatItem[][] = []
-  for (let i = 0; i < stats.length; i += 2) {
-    pairs.push(stats.slice(i, i + 2))
-  }
 
   const isEmpty =
     !loading &&
@@ -128,11 +140,11 @@ export function OntCapaControlSection({ ont, refreshToken = 0, visiblePrefIds }:
           <OntCardEmptyBody className="py-6" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {pairs.map((stats) => (
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
+          {stats.map((stat) => (
             <OntCapaControlGroupedMetricCard
-              key={stats.map((s) => s.label).join('-')}
-              stats={stats}
+              key={stat.label}
+              stats={[stat]}
               loading={loading}
             />
           ))}

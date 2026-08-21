@@ -80,6 +80,12 @@ function BirthCertificateContent({
   const [isExpanded, setIsExpanded] = useState(false)
   const displayDate = certificate.fechaHora || certificate.date || 'Sin Datos'
   const isColumn = layout === 'column'
+  const hasExtraDetails = hasAnyOntValue([
+    certificate.cdo,
+    certificate.puertoInstalado,
+    certificate.workOrder,
+    certificate.caseNumber,
+  ])
 
   return (
     <div className="flex flex-col gap-2">
@@ -97,26 +103,30 @@ function BirthCertificateContent({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => setIsExpanded((current) => !current)}
-        aria-expanded={isExpanded}
-        className="inline-flex w-fit items-center gap-1 rounded-md px-0.5 py-0.5 text-[11px] font-semibold text-(--primary) transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-(--primary)/35 dark:text-(--secondary) dark:hover:bg-white/8"
-      >
-        {isExpanded ? 'Ver menos información' : 'Ver más información'}
-        <IoChevronDown
-          className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-          aria-hidden
-        />
-      </button>
+      {hasExtraDetails ? (
+        <>
+          <button
+            type="button"
+            onClick={() => setIsExpanded((current) => !current)}
+            aria-expanded={isExpanded}
+            className="inline-flex w-fit items-center gap-1 rounded-md px-0.5 py-0.5 text-[11px] font-semibold text-(--primary) transition-colors hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-(--primary)/35 dark:text-(--secondary) dark:hover:bg-white/8"
+          >
+            {isExpanded ? 'Ver menos información' : 'Ver más información'}
+            <IoChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+              aria-hidden
+            />
+          </button>
 
-      {isExpanded ? (
-        <div className="grid gap-2 text-sm md:text-[12px]">
-          <DetailRow label="CDO" value={certificate.cdo} />
-          <DetailRow label="Puerto instalado" value={certificate.puertoInstalado} />
-          <DetailRow label="Work order" value={certificate.workOrder} />
-          <DetailRow label="Caso" value={certificate.caseNumber} />
-        </div>
+          {isExpanded ? (
+            <div className="grid gap-2 text-sm md:text-[12px]">
+              <DetailRow label="CDO" value={certificate.cdo} />
+              <DetailRow label="Puerto instalado" value={certificate.puertoInstalado} />
+              <DetailRow label="Work order" value={certificate.workOrder} />
+              <DetailRow label="Caso" value={certificate.caseNumber} />
+            </div>
+          ) : null}
+        </>
       ) : null}
     </div>
   )

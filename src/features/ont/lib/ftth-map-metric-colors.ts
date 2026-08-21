@@ -15,7 +15,7 @@ export function getOntRxColor(rawValue: string): string {
   if (Number.isNaN(value)) return 'var(--text-secondary)'
   if (value < ONT_RX_THRESHOLDS.crit) return 'var(--state-03)'
   if (value < ONT_RX_THRESHOLDS.warn) return 'var(--card-orange)'
-  if (value > ONT_RX_THRESHOLDS.poe) return 'var(--state-02)'
+  if (value > ONT_RX_THRESHOLDS.poe) return 'var(--primary-2)'
   return 'var(--state-01)'
 }
 

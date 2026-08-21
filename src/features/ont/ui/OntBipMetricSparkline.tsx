@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   fetchOntBipSparklinePoints,
@@ -14,19 +14,7 @@ interface Props {
   graphId: BipGraphId
 }
 
-function SparklineShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md border border-black/10 bg-white/55 dark:border-white/12 dark:bg-white/5">
-      {children}
-    </div>
-  )
-}
-
 function BipSparklineChart({ rows }: { rows: OntBipSparklinePoint[] }) {
-  const isFlatZero = useMemo(
-    () => rows.length > 0 && rows.every((row) => row.value === 0),
-    [rows],
-  )
   const path = useMemo(() => buildSparklinePath(rows, 56, 56, 8), [rows])
   return (
     <div
@@ -35,26 +23,14 @@ function BipSparklineChart({ rows }: { rows: OntBipSparklinePoint[] }) {
       aria-label="Histórico BIP últimos 3 días"
     >
       <svg viewBox="0 0 56 56" className="size-full" aria-hidden>
-        {isFlatZero ? (
-          <line
-            x1="8"
-            y1="46"
-            x2="48"
-            y2="46"
-            stroke="var(--primary-2)"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-          />
-        ) : (
-          <path
-            d={path}
-            fill="none"
-            stroke="var(--primary-2)"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        )}
+        <path
+          d={path}
+          fill="none"
+          stroke="var(--primary-2)"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </div>
   )
@@ -103,42 +79,12 @@ export function OntBipMetricSparkline({ ont, oltId, graphId }: Props) {
     return () => controller.abort()
   }, [graphId, isVisible, oltId, ont])
 
-  if (!isVisible || loading) {
-    return (
-      <div ref={rootRef}>
-        <SparklineShell>
-          {isVisible ? (
-            <>
-              <span
-                className="inline-block size-3.5 animate-spin rounded-full border border-(--text-secondary) border-t-transparent"
-                aria-hidden
-              />
-              <span className="sr-only">Cargando histórico BIP</span>
-            </>
-          ) : (
-            <span className="sr-only">Histórico BIP pendiente de visualización</span>
-          )}
-        </SparklineShell>
-      </div>
-    )
-  }
-
-  if (rows.length < 2) {
-    return (
-      <div ref={rootRef}>
-        <SparklineShell>
-          <span className="text-[10px] font-medium text-(--text-secondary)" aria-hidden>
-            —
-          </span>
-          <span className="sr-only">Sin histórico BIP disponible</span>
-        </SparklineShell>
-      </div>
-    )
-  }
+  const hasPeaks = rows.some((row) => row.value !== 0)
+  const showChart = isVisible && !loading && rows.length >= 2 && hasPeaks
 
   return (
-    <div ref={rootRef}>
-      <BipSparklineChart rows={rows} />
+    <div ref={rootRef} className={showChart ? undefined : 'h-px w-full'}>
+      {showChart ? <BipSparklineChart rows={rows} /> : null}
     </div>
   )
 }

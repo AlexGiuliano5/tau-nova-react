@@ -11,11 +11,8 @@ import {
   useRecalculateCooldown,
 } from '@/features/ont/hooks/use-recalculate-cooldown'
 import {
-  getOltRxCellClass,
-  getOntRxCellClass,
   OltRxMetricSpan,
   OntRxMetricSpan,
-  resolveMetricValueForStyling,
 } from '@/features/ont/lib/ftth-grid-metric-styles'
 import {
   mergePreviewOntRxRealtime,
@@ -23,6 +20,7 @@ import {
 } from '@/features/ont/lib/neighbors-preview'
 import { normalizeSerial } from '@/features/ont/lib/olt-realtime-metrics-grid'
 import { formatOntSerial, normalizeOntId } from '@/features/ont/lib/ont-serial'
+import { ontStatusRowClassName } from '@/features/ont/lib/ont-status-labels'
 import { ONT_NEIGHBORS_TABLE_PREVIEW_CLASSNAME } from '@/features/ont/ui/table/tableClassNames'
 
 import '@/features/ont/styles/ftth-datatable.css'
@@ -191,6 +189,7 @@ export function NeighborsTablePreview({ ont, neighbors, realtimeTarget }: Props)
           setSortField(event.sortField)
           setSortOrder(event.sortOrder as 1 | -1 | 0)
         }}
+        rowClassName={(row: NeighborRowView) => ontStatusRowClassName(row.estado)}
       >
         <Column
           field="serial"
@@ -223,9 +222,7 @@ export function NeighborsTablePreview({ ont, neighbors, realtimeTarget }: Props)
           sortable
           sortField="ontRxValue"
           headerClassName="text-center"
-          bodyClassName={(row: NeighborRowView) =>
-            `text-center ${getOntRxCellClass(resolveMetricValueForStyling(row.ontRx, row.estado))}`.trim()
-          }
+          bodyClassName="text-center"
         />
         <Column
           field="oltRx"
@@ -236,9 +233,7 @@ export function NeighborsTablePreview({ ont, neighbors, realtimeTarget }: Props)
           sortable
           sortField="oltRxValue"
           headerClassName="text-center"
-          bodyClassName={(row: NeighborRowView) =>
-            `text-center ${getOltRxCellClass(resolveMetricValueForStyling(row.oltRx, row.estado))}`.trim()
-          }
+          bodyClassName="text-center"
         />
       </DataTable>
 

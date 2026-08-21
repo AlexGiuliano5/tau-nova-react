@@ -43,6 +43,8 @@ function getMetricColorClass(color: OntMetricCardModel['color']): string {
       return 'bg-(--card-orange)/85'
     case 'card-green':
       return 'bg-(--card-green)/85'
+    case 'card-blue':
+      return 'bg-(--primary-2)/85 dark:bg-(--secondary)/80'
     default:
       return 'bg-(--secondary)/28 dark:bg-(--secondary)/55'
   }
@@ -58,6 +60,8 @@ function getMetricBorderClassName(color: OntMetricCardModel['color']): string {
       return 'border-(--card-orange)/60 dark:border-(--card-orange)/55'
     case 'card-green':
       return 'border-(--card-green)/60 dark:border-(--card-green)/55'
+    case 'card-blue':
+      return 'border-(--primary-2)/55 dark:border-(--secondary)/50'
     default:
       return 'border-[#d9e0e8] dark:border-white/10'
   }
@@ -73,6 +77,8 @@ function getMetricValueClassName(color: OntMetricCardModel['color']): string {
       return 'text-[#c45c12] dark:text-(--card-orange)'
     case 'card-green':
       return 'text-[#1f8a3b] dark:text-(--card-green)'
+    case 'card-blue':
+      return 'text-(--primary-2) dark:text-(--secondary)'
     default:
       return 'text-(--text-primary)'
   }

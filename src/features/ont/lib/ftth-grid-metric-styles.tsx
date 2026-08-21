@@ -7,6 +7,11 @@ import {
   findGridColumnIndex,
   normalizeSerial,
 } from '@/features/ont/lib/olt-realtime-metrics-grid'
+import {
+  getOntMetricThresholdConfig,
+  resolveOntMetricThresholdSegment,
+  type OntMetricThresholdTone,
+} from '@/features/ont/lib/ont-metric-thresholds'
 import { normalizeOntStatusKey } from '@/features/ont/lib/ont-status-labels'
 
 const ONT_RX_THRESHOLDS = { crit: -27, warn: -24.5, poe: -12 }
@@ -126,7 +131,7 @@ export function getOntRxColor(rawValue: string): string {
   if (Number.isNaN(value)) return 'var(--text-secondary)'
   if (value < ONT_RX_THRESHOLDS.crit) return 'var(--state-03)'
   if (value < ONT_RX_THRESHOLDS.warn) return 'var(--card-orange)'
-  if (value > ONT_RX_THRESHOLDS.poe) return 'var(--state-02)'
+  if (value > ONT_RX_THRESHOLDS.poe) return 'var(--primary-2)'
   return 'var(--state-01)'
 }
 
@@ -193,6 +198,68 @@ export function resolveMetricValueForStyling(value: string, estadoRaw?: string):
   return value
 }
 
+const metricPillBaseClassName =
+  'inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-[11px] font-semibold leading-tight tabular-nums'
+
+function metricThresholdPillClassName(tone: OntMetricThresholdTone): string {
+  switch (tone) {
+    case 'red':
+      return 'bg-(--tag-state-03) text-(--state-03) dark:bg-(--state-03)/20 dark:text-[#ff9aa0]'
+    case 'orange':
+    case 'yellow':
+      return 'bg-(--tag-state-02) text-[#9a7400] dark:bg-(--state-02)/25 dark:text-[#f0c56a]'
+    case 'green':
+      return 'bg-(--tag-state-01) text-(--state-01) dark:bg-(--state-01)/20 dark:text-[#9ad48a]'
+    case 'blue':
+      return 'bg-(--primary-2)/15 text-(--primary-2) dark:bg-(--secondary)/18 dark:text-(--secondary)'
+    default:
+      return 'bg-(--card-gray) text-(--text-secondary) dark:bg-white/10'
+  }
+}
+
+function shortenThresholdLabel(label: string): string {
+  const normalized = label.trim().toLowerCase()
+  if (normalized === 'advertencia') return 'advert.'
+  return normalized
+}
+
+function ThresholdMetricPill({
+  value,
+  estadoRaw,
+  metricTitle,
+}: {
+  value: string
+  estadoRaw?: string
+  metricTitle: string
+}) {
+  const display = formatMetricDisplayValue(value, estadoRaw)
+  if (display === 'Sin Datos') {
+    return <span className="text-(--text-secondary)">Sin Datos</span>
+  }
+
+  const styleValue = resolveMetricValueForStyling(value, estadoRaw)
+  const parsed = Number.parseFloat(styleValue.replace(',', '.'))
+  const config = getOntMetricThresholdConfig(metricTitle)
+  const segment =
+    config && Number.isFinite(parsed)
+      ? resolveOntMetricThresholdSegment(parsed, config)
+      : null
+
+  if (!segment || segment.tone === 'green') {
+    return <span>{display}</span>
+  }
+
+  const suffix = shortenThresholdLabel(segment.label)
+  return (
+    <span
+      title={`${display} · ${segment.label}`}
+      className={clsx(metricPillBaseClassName, metricThresholdPillClassName(segment.tone))}
+    >
+      {display} · {suffix}
+    </span>
+  )
+}
+
 export function OntRxMetricSpan({
   value,
   estadoRaw,
@@ -200,9 +267,7 @@ export function OntRxMetricSpan({
   value: string
   estadoRaw?: string
 }) {
-  const display = formatMetricDisplayValue(value, estadoRaw)
-  const styleValue = resolveMetricValueForStyling(value, estadoRaw)
-  return <span style={{ color: getOntRxColor(styleValue) }}>{display}</span>
+  return <ThresholdMetricPill value={value} estadoRaw={estadoRaw} metricTitle="ONT RX" />
 }
 
 export function OltRxMetricSpan({
@@ -212,9 +277,7 @@ export function OltRxMetricSpan({
   value: string
   estadoRaw?: string
 }) {
-  const display = formatMetricDisplayValue(value, estadoRaw)
-  const styleValue = resolveMetricValueForStyling(value, estadoRaw)
-  return <span style={{ color: getOltRxColor(styleValue) }}>{display}</span>
+  return <ThresholdMetricPill value={value} estadoRaw={estadoRaw} metricTitle="OLT RX" />
 }
 
 export function OltTxMetricSpan({
@@ -224,9 +287,7 @@ export function OltTxMetricSpan({
   value: string
   estadoRaw?: string
 }) {
-  const display = formatMetricDisplayValue(value, estadoRaw)
-  const styleValue = resolveMetricValueForStyling(value, estadoRaw)
-  return <span style={{ color: getOltTxColor(styleValue) }}>{display}</span>
+  return <ThresholdMetricPill value={value} estadoRaw={estadoRaw} metricTitle="OLT TX" />
 }
 
 function parseRealtimeMetricNumber(value: string): number | null {

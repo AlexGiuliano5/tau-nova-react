@@ -147,3 +147,31 @@ export function resolveOntMetricThresholdSegment(
   if (value > config.max) return config.segments[lastIndex] ?? null
   return null
 }
+
+export type OntRxIssueKind = 'interrupted' | 'degraded'
+
+export function ontRxIssueKind(raw: string): OntRxIssueKind | null {
+  const config = getOntMetricThresholdConfig('ONT RX')
+  if (!config) return null
+  const parsed = Number.parseFloat(String(raw).trim().replace(',', '.'))
+  if (!Number.isFinite(parsed)) return null
+  const tone = resolveOntMetricThresholdSegment(parsed, config)?.tone
+  if (tone === 'red') return 'interrupted'
+  if (tone === 'orange') return 'degraded'
+  return null
+}
+
+/** Conteos de ONT RX fuera de óptimo: crítico (rojo) y advertencia (amarillo). */
+export function countOntRxIssues(values: Iterable<string>): {
+  interrupted: number
+  degraded: number
+} {
+  let interrupted = 0
+  let degraded = 0
+  for (const raw of values) {
+    const kind = ontRxIssueKind(raw)
+    if (kind === 'interrupted') interrupted += 1
+    if (kind === 'degraded') degraded += 1
+  }
+  return { interrupted, degraded }
+}

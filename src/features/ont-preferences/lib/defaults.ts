@@ -70,6 +70,7 @@ const capaMetrics = [
   { id: 'capa-ip', label: 'IP' },
   { id: 'capa-portal', label: 'Portal' },
   { id: 'capa-levanto', label: 'Levantó por última vez' },
+  { id: 'capa-hdm-sip', label: 'HDM | SIP' },
 ]
 
 const infracoOpticalMetrics = [

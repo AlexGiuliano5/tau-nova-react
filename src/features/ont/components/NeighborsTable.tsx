@@ -21,6 +21,7 @@ import { FtthCardIssueState } from '@/features/ftth/components/FtthCardIssueStat
 import { fetchOntCapaControl } from '@/features/ont/api/capa-control'
 import { fetchInfoRealTimeByOlt } from '@/features/ont/api/info-realtime-by-olt'
 import { NeighborsEstadoIcon } from '@/features/ont/components/NeighborsEstadoIcon'
+import { EstadoColumnFilter } from '@/features/ont/components/EstadoColumnFilter'
 import { NeighborsMobileToolbar } from '@/features/ont/components/NeighborsMobileToolbar'
 import { NeighborsTableToolbar } from '@/features/ont/components/NeighborsTableToolbar'
 import {
@@ -42,18 +43,22 @@ import {
   formatMetricDisplayValue,
   getFtthOntGridColumnKind,
   getFtthOntGridFilterLayout,
-  getOltRxCellClass,
-  getOltTxCellClass,
-  getOntRxCellClass,
   OltRxMetricSpan,
   OltTxMetricSpan,
   OntRxMetricSpan,
   realtimeCellComparisonKey,
-  resolveMetricValueForStyling,
   wrapRealtimeMetricCell,
   type RealtimeCellComparison,
 } from '@/features/ont/lib/ftth-grid-metric-styles'
 import { formatOntSerial, normalizeOntId } from '@/features/ont/lib/ont-serial'
+import { countOntRxIssues, ontRxIssueKind } from '@/features/ont/lib/ont-metric-thresholds'
+import {
+  countOntStatusFilterBuckets,
+  emptyOntStatusFilterCounts,
+  ontStatusFilterBucket,
+  ontStatusRowClassName,
+  readOntStatusFilterSelection,
+} from '@/features/ont/lib/ont-status-labels'
 import type { OntNeighborsGridModel, OltMetricsGridRowRecord } from '@/features/ont/types/ont'
 import {
   FTTH_DATA_TABLE_SHELL_PAGE_ROWS_CLASSNAME,
@@ -230,6 +235,36 @@ function readFilterText(entry: unknown): string {
   return typeof raw === 'string' ? raw.trim().toLowerCase() : ''
 }
 
+function rowMatchesColumnFilters(
+  row: NeighborRow,
+  filterFields: string[],
+  filters: DataTableFilterMeta,
+  columnNames: string[],
+  skipField?: string,
+): boolean {
+  return filterFields.every((field) => {
+    if (skipField && field === skipField) return true
+    const estadoSelection = readOntStatusFilterSelection(filters[field])
+    if (estadoSelection.length > 0) {
+      return estadoSelection.includes(ontStatusFilterBucket(String(row[field] ?? '')))
+    }
+    const query = readFilterText(filters[field])
+    if (!query) return true
+    const value = String(row[field] ?? '').toLowerCase()
+    if (field.startsWith('c') && /serial/i.test(columnNames[Number(field.slice(1))] ?? '')) {
+      return (
+        value.includes(query) ||
+        formatOntSerial(value).toLowerCase().includes(query)
+      )
+    }
+    return value.includes(query)
+  })
+}
+
+function isColumnFilterActive(entry: unknown): boolean {
+  return readOntStatusFilterSelection(entry).length > 0 || Boolean(readFilterText(entry))
+}
+
 function isNumericLike(value: string): boolean {
   const normalized = value.replace(',', '.').trim()
   if (!normalized || normalized === EMPTY) return false
@@ -379,6 +414,9 @@ export function NeighborsTable({
   const [tableRows, setTableRows] = useState<NeighborRow[]>(baseRows)
   const [selectedRows, setSelectedRows] = useState<NeighborRow[]>([])
   const [showOnlySelected, setShowOnlySelected] = useState(false)
+  const [rxIssueFilter, setRxIssueFilter] = useState<'interrupted' | 'degraded' | null>(
+    null,
+  )
   const [showFilters, setShowFilters] = useState(true)
   const [columnSheetOpen, setColumnSheetOpen] = useState(false)
   const [filters, setFilters] = useState<DataTableFilterMeta>(() =>
@@ -400,6 +438,10 @@ export function NeighborsTable({
 
   const estadoColIndex = useMemo(
     () => findColumnIndex(columnNames, /^estado$/i),
+    [columnNames],
+  )
+  const ontRxColIndex = useMemo(
+    () => columnNames.findIndex((name) => getFtthOntGridColumnKind(name) === 'ontRx'),
     [columnNames],
   )
 
@@ -611,30 +653,41 @@ export function NeighborsTable({
     return next
   }, [tableRows, sortField, sortOrder])
 
+  const columnFilteredRows = useMemo(() => {
+    return sortedRows.filter((row) =>
+      rowMatchesColumnFilters(row, filterFields, filters, columnNames),
+    )
+  }, [sortedRows, filterFields, filters, columnNames])
+
+  const estadoField = estadoColIndex >= 0 ? `c${estadoColIndex}` : ''
+  const estadoCounts = useMemo(() => {
+    if (!estadoField) return emptyOntStatusFilterCounts()
+    const rows = sortedRows.filter((row) =>
+      rowMatchesColumnFilters(row, filterFields, filters, columnNames, estadoField),
+    )
+    return countOntStatusFilterBuckets(rows.map((row) => String(row[estadoField] ?? '')))
+  }, [sortedRows, filterFields, filters, columnNames, estadoField])
+
   const filteredRows = useMemo(() => {
-    const source = showOnlySelected ? selectedRows : sortedRows
-    return source.filter((row) =>
-      filterFields.every((field) => {
-        const query = readFilterText(filters[field])
-        if (!query) return true
-        const value = String(row[field] ?? '').toLowerCase()
-        if (field.startsWith('c') && /serial/i.test(columnNames[Number(field.slice(1))] ?? '')) {
-          return (
-            value.includes(query) ||
-            formatOntSerial(value).toLowerCase().includes(query)
-          )
-        }
-        return value.includes(query)
-      }),
+    if (!showOnlySelected) return columnFilteredRows
+    return selectedRows.filter((row) =>
+      rowMatchesColumnFilters(row, filterFields, filters, columnNames),
     )
   }, [
-    sortedRows,
+    columnFilteredRows,
     selectedRows,
     showOnlySelected,
     filterFields,
     filters,
     columnNames,
   ])
+
+  const issueCounts = useMemo(() => {
+    if (ontRxColIndex < 0) return { interrupted: 0, degraded: 0 }
+    return countOntRxIssues(
+      columnFilteredRows.map((row) => String(row[`c${ontRxColIndex}`] ?? '')),
+    )
+  }, [columnFilteredRows, ontRxColIndex])
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage))
   const currentPage = Math.min(Math.floor(first / rowsPerPage) + 1, totalPages)
@@ -723,7 +776,7 @@ export function NeighborsTable({
   const showRowFilters = isDesktop && showFilters
   const hasActiveFilters =
     showRowFilters &&
-    filterFields.some((field) => Boolean(readFilterText(filters[field])))
+    filterFields.some((field) => isColumnFilterActive(filters[field]))
 
   const handleCompareClick = () => {
     if (showCompare) {
@@ -739,10 +792,31 @@ export function NeighborsTable({
     if (showOnlySelected) {
       setShowOnlySelected(false)
       setSelectedRows([])
+      setRxIssueFilter(null)
       return
     }
     if (selectedRows.length === 0) return
     setShowOnlySelected(true)
+    setRxIssueFilter(null)
+    setFirst(0)
+  }
+
+  const handleIssueFilter = (kind: 'interrupted' | 'degraded') => {
+    if (rxIssueFilter === kind && showOnlySelected) {
+      setShowOnlySelected(false)
+      setSelectedRows([])
+      setRxIssueFilter(null)
+      return
+    }
+    if (ontRxColIndex < 0) return
+    const field = `c${ontRxColIndex}`
+    const rows = columnFilteredRows.filter(
+      (row) => ontRxIssueKind(String(row[field] ?? '')) === kind,
+    )
+    if (rows.length === 0) return
+    setSelectedRows(rows)
+    setShowOnlySelected(true)
+    setRxIssueFilter(kind)
     setFirst(0)
   }
 
@@ -805,6 +879,9 @@ export function NeighborsTable({
           showOnlySelected={showOnlySelected}
           onToggleSelectionFilter={handleToggleSelectionFilter}
           onOpenColumnOrder={() => setColumnSheetOpen(true)}
+          issueCounts={issueCounts}
+          activeIssueFilter={rxIssueFilter}
+          onIssueFilter={handleIssueFilter}
         />
       ) : (
         <NeighborsMobileToolbar
@@ -894,9 +971,13 @@ export function NeighborsTable({
                 serialRaw && serialRaw !== EMPTY && serialRaw !== REALTIME_LOADING
                   ? (normalizeOntId(serialRaw) || serialRaw).toLowerCase()
                   : ''
-              return highlightHex && serialNorm === highlightHex
-                ? 'bg-(--primary)/8 dark:bg-(--secondary)/15'
-                : ''
+              const estadoRaw =
+                estadoColIndex >= 0 ? cellValue(row, estadoColIndex) : ''
+              return clsx(
+                ontStatusRowClassName(estadoRaw),
+                highlightHex && serialNorm === highlightHex &&
+                  'bg-(--primary)/8 dark:bg-(--secondary)/15',
+              )
             }}
           >
             {isDesktop ? (
@@ -919,9 +1000,11 @@ export function NeighborsTable({
             {visibleColumns.map((column) =>
               renderNeighborColumn(column, {
                 estadoColIndex,
+                estadoCounts,
                 realtimeCellComparisons,
                 isDesktop,
                 enableFilters: showRowFilters,
+                filters,
               }),
             )}
           </DataTable>
@@ -1007,9 +1090,11 @@ function renderNeighborColumn(
   column: DisplayColumn,
   options: {
     estadoColIndex: number
+    estadoCounts: ReturnType<typeof emptyOntStatusFilterCounts>
     realtimeCellComparisons: Record<string, RealtimeCellComparison>
     isDesktop: boolean
     enableFilters: boolean
+    filters: DataTableFilterMeta
   },
 ): ReactNode {
   if (column.kind === 'synthetic') {
@@ -1047,6 +1132,9 @@ function renderNeighborColumn(
   const isEstado = metricKind === 'estado'
   const isSerial = metricKind === 'serial'
   const filterLayout = getFtthOntGridFilterLayout(metricKind, column.name)
+  const estadoSelection = isEstado
+    ? readOntStatusFilterSelection(options.filters[column.field])
+    : []
 
   return (
     <Column
@@ -1055,9 +1143,20 @@ function renderNeighborColumn(
       header={column.name}
       sortable
       filter={options.enableFilters}
-      filterPlaceholder={options.enableFilters ? 'Buscar' : undefined}
-      showFilterMenu={options.enableFilters}
-      showClearButton={options.enableFilters}
+      filterPlaceholder={options.enableFilters && !isEstado ? 'Buscar' : undefined}
+      showFilterMenu={options.enableFilters && !isEstado}
+      showClearButton={options.enableFilters && !isEstado}
+      filterElement={
+        options.enableFilters && isEstado
+          ? (filterOptions) => (
+              <EstadoColumnFilter
+                selected={estadoSelection}
+                counts={options.estadoCounts}
+                onChange={(next) => filterOptions.filterApplyCallback(next.length > 0 ? next : null)}
+              />
+            )
+          : undefined
+      }
       headerClassName={filterLayout?.colClass}
       pt={
         filterLayout
@@ -1129,19 +1228,6 @@ function renderNeighborColumn(
           kind: metricKind,
           isDesktop: options.isDesktop,
         })
-      }}
-      bodyClassName={(row: NeighborRow) => {
-        const raw = String(row[`c${column.index}`] ?? '')
-        if (raw === REALTIME_LOADING) return ''
-        const estadoRaw =
-          options.estadoColIndex >= 0
-            ? String(row[`c${options.estadoColIndex}`] ?? '')
-            : ''
-        const styleValue = resolveMetricValueForStyling(raw, estadoRaw)
-        if (metricKind === 'ontRx') return getOntRxCellClass(styleValue)
-        if (metricKind === 'oltRx') return getOltRxCellClass(styleValue)
-        if (metricKind === 'oltTx') return getOltTxCellClass(styleValue)
-        return ''
       }}
     />
   )
